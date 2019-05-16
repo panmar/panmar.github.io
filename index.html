@@ -1,1 +1,130 @@
-Hello
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Panasiuk Marcin - portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name=" description" content="Software developer portfolio" />
+    <meta name="author" content="Marcin Panasiuk" />
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <canvas id="background"></canvas>
+    <title>
+        Marcin Panasiuk - portfolio
+    </title>
+    <div class="portfolio-container">
+        <header>
+            <div class="page-title">Hello, world!</div>
+            <div class="bio">
+                <p>My name is Marcin Panasiuk and I am a software engineer. I am interested in realtime
+                    graphics and high performance computing. Here you can find some projects I contributed to over last
+                    years.</p>
+            </div>
+        </header>
+
+        <div class="project-title">SLAM</div>
+        <div class="row portfolio-entry">
+            <div class="column"><img src="projects/slam.jpg"></img></div>
+            <div class="column project-description">
+                <p>Worked with computer vision team to develop realtime SLAM system for Android.
+                    Contributed to relocalization module, testing and profiling pipelines, visualization toolkits
+                    and Android integration layer.</p>
+            </div>
+        </div>
+
+        <div class="project-title">Opera Software</div>
+        <div class="portfolio-entry">
+            <div class="row">
+                <div class="column"><img src="projects/opera.jpeg"></img></div>
+                <div class="column project-description">
+                    <p>Worked with R&D team to make chromium browser scalable backend service.
+                        Built fully-automated battery-drain measurement lab for Opera Desktop.
+                        Implemented web scrapper service for article recommendation system.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-title">Dying Light</div>
+        <div class="portfolio-entry">
+            <div class="row">
+                <div class="column"><img src="projects/dying_light.jpg"></img></div>
+                <div class="column project-description">
+                    <p>Spent two years in the Techland working on Chrome engine used in AAA game - Dying Light.
+                        Contributed to graphics pipeline optimizations, particle system, video rendering and asset
+                        creation pipeline. Amazing two years spent with incredible people.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="project-title">XNA character controller</div>
+        <div class="row portfolio-entry">
+            <div class="column video-player">
+                <video poster="projects/char_controller.jpg" controls preload="none">
+                    <source src="projets/char_controller.webm" type="video/webm" />
+                    <source src="projects/char_controller.mp4" type="video/mp4" />
+                </video>
+            </div>
+            <div class="column project-description">
+                <p>A character controller created in XNA just before the framework was abandoned by the Microsoft.
+                    Forward rendering with dual paraboloid shadow maps, particles and snow accumulation effects.
+                    My humble tribute to this great framework. Watch the world turn white!</p>
+            </div>
+        </div>
+
+        <div class="project-title">CDLOD terrain renderer</div>
+        <div class="row portfolio-entry">
+            <div class="column video-player">
+                <video poster="projects/cdlod.jpg" controls preload="none">
+                    <source src="projets/cdlod.webm" type="video/webm" />
+                    <source src="projects/cdlod.mp4" type="video/mp4" />
+                </video>
+            </div>
+            <div class="column project-description">
+                <p>A terrain renderer based on CDLOD technique allowing dynamic
+                    terrain modifications with vertex texture fetches.
+                    Sky rendering implemented with Hoffman-Preetham atmospheric scattering model.</p>
+            </div>
+        </div>
+
+        <div class="project-title">Insomnia</div>
+        <div class="row portfolio-entry">
+            <div class="column video-player">
+                <video poster="projects/insomnia.jpg" controls preload="none">
+                    <source src="projects/insomnia.mp4" type="video/mp4" />
+                </video>
+            </div>
+            <div class="column project-description">
+                <p>A horror game demo built for the local competition with <a href="https://stasiak.at"
+                        target="_blank">Jakub Stasiak</a> and Grzegorz Kocjan.
+                    Designed the overall engine architecture, implemented rendering pipeline and physics integration.
+                    Being the first game we wrote together it had lots of overengineering
+                    (all cool programmers make script systems, duh!) and exploratory code. Overall great learning experience,
+                    which
+                    got me interested in game engine design.</p>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            Feel free to give me a shout at
+            <a href="mailto:panasiuk.marcin@gmail.com">panasiuk.marcin@gmail.com</a>.
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="references">
+            <a href="https://github.com/panmar" target="_blank"><img src="img/github.png"></a>
+            <a href="https://www.linkedin.com/in/marcin-panasiuk-188b3163/" target="_blank"><img
+                    src="img/linked-in.png"></a>
+            <a href="mailto:panasiuk.marcin@gmail.com"><img src="img/email.png"></a>
+        </div>
+    </footer>
+
+    <script type="module" src="js/background.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

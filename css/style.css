@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700');
+
+body {
+    background-color: rgb(20, 20, 20);
+    color: #cfb2a1;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding-top: 6%;
+    padding-left: auto;
+    padding-right: auto;
+    background-image:  url("../img/oldpaper_hd.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    /* background-blend-mode: luminosity; */
+}
+
+canvas#background {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: -100;
+}
+
+.portfolio-container {
+    background-color: rgba(0,0,0,0.85);
+    border: 1px solid #555555;
+    border-radius: 10px;
+    margin: auto;
+    max-width: 180mm;
+    padding: 10%;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.portfolio-entry {
+    padding-top: 10px;
+}
+
+.project-title {
+    text-align: center;
+    /* color: #A6E22E; */
+    color: #d18962;
+    font-weight: bold;   
+    font-size: 21.75px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+
+.bio {
+    margin-bottom: 20px;
+}
+
+.project-description {
+    padding: 4%;
+    padding-top: 0%;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+  
+.column {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+}
+
+@media screen and (min-width: 800px) {
+    .column {
+      flex: 1;
+    }
+}
+
+.page-title {
+    color: #ce6933;
+    font-weight: bold;   
+    font-size: 29.75px;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+img {
+    width: 100%;
+    height: auto;
+    border: 1px solid #383838;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+video {
+    width: 100%;
+    height: auto;
+    border: 1px solid #383838;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+p {
+    margin: 0;
+}
+
+.contact-info {
+    text-align: center;
+    padding-top: 10%;
+}
+
+a:link {
+    color: #ce6933;
+}
+  
+a:visited {
+    color: #8f692f;
+}
+
+a:hover {
+    color: #4e4025;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+}
+
+footer {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+footer img {
+    border: 0px;
+    width: auto;
+    height: auto;
+}
+
+.references {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
