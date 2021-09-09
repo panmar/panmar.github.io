@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% set active_page = "tags" %}
+{% block title %}Tags{% endblock %}
+{% block content %}
+
+<ul>
+{% for tag, articles in tags %}
+    <li><a href="/{{ tag.url }}">{{ tag }}</a> ({{ articles|count }})</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
