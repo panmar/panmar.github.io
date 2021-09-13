@@ -1,11 +1,18 @@
 First post
 ##########
 
-:date: 2021-09-05 13:00
+:date: 2021-09-13 11:43
 :tags: meta
 
-Lorem ipsum dolor sit amet, `consectetur <https://blog.getpelican.com>`_ adipiscing elit, sed do eiusmod tempor incididunt ut labore
-et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+.. code-block:: rust
+
+    fn main() {
+        println!("Hello world!");
+    }
+
+This is a first post. Inspired by a `Jakub Stasiak's blog <https://stasiak.at>`_
+(I encourage you to visit it if you haven't already) I have finally decided to start my
+blogging adventure. To do so I am using `Pelican <https://github.com/getpelican/pelican>`_.
+So far it's working very nicely - I am glad I resisted the urge to roll my own solution.
+I am using modified `Jakub's theme <https://github.com/panmar/panmar.github.io>`_, which
+I've been tweaking during night hours - hence a dark theme.
