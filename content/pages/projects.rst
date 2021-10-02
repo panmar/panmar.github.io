@@ -7,6 +7,7 @@ Programming
 * `amonsun <https://panmar.github.io/amonsun/>`_ - a terrain and atmosphere renderer
 * `exnihilo <https://panmar.github.io/exnihilo/>`_ - a puzzle 3d platformer
 * `tetris3d <https://github.com/panmar/tetris3d>`_ - a tetris game, but 3D
+* `playgl <https://github.com/panmar/playgl>`_ - an OpenGL rendering playground
 * `pytracer <https://github.com/panmar/pytracer>`_ - a simple raytracer
 * `portfolio <https://panmar.github.io/portfolio-template/>`_ - one-page portfolio template
 
