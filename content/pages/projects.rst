@@ -3,7 +3,7 @@ Projects
 
 Programming
 ===========
-* `chip8-emulator <https://github.com/panmar/chip8-emulator>` - CHIP-8 emulator
+* `chip8-emulator <https://github.com/panmar/chip8-emulator>`_ - CHIP-8 emulator
 * `playsh <https://github.com/panmar/playsh>`_ - a shadertoy clone
 * `playgl <https://github.com/panmar/playgl>`_ - a rendering playground
 * `pytracer <https://github.com/panmar/pytracer>`_ - a simple raytracer
