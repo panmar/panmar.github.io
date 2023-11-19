@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk</title><link href="https://marcinpanasiuk.com/" rel="alternate"></link><link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="self"></link><id>https://marcinpanasiuk.com/</id><updated>2023-11-19T22:02:00+01:00</updated><entry><title>Code me if you can</title><link href="https://marcinpanasiuk.com/code-me-if-you-can.html" rel="alternate"></link><published>2023-11-19T22:02:00+01:00</published><updated>2023-11-19T22:02:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2023-11-19:/code-me-if-you-can.html</id><summary type="html">&lt;img alt="Autumn forest" class="align-center" src="/images/autumn.jpeg" /&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk - projects</title><link href="https://marcinpanasiuk.com/" rel="alternate"></link><link href="https://marcinpanasiuk.com/feeds/projects.atom.xml" rel="self"></link><id>https://marcinpanasiuk.com/</id><updated>2023-11-19T22:02:00+01:00</updated><entry><title>Code me if you can</title><link href="https://marcinpanasiuk.com/code-me-if-you-can.html" rel="alternate"></link><published>2023-11-19T22:02:00+01:00</published><updated>2023-11-19T22:02:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2023-11-19:/code-me-if-you-can.html</id><summary type="html">&lt;img alt="Autumn forest" class="align-center" src="/images/autumn.jpeg" /&gt;
 &lt;p&gt;Some time ago, I started writing down ideas for projects I could implement for fun. Here are a few to spend those long, autumn nights:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
@@ -73,21 +73,4 @@
 &lt;/dl&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-</content><category term="misc"></category><category term="projects"></category></entry><entry><title>First post</title><link href="https://marcinpanasiuk.com/first-post.html" rel="alternate"></link><published>2021-09-13T11:43:00+02:00</published><updated>2021-09-13T11:43:00+02:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2021-09-13:/first-post.html</id><summary type="html">&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;fn&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="fm"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Hello world!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;This is a first post. Inspired by a &lt;a class="reference external" href="https://stasiak.at"&gt;Jakub Stasiak's blog&lt;/a&gt;
-(I encourage you to visit it if you haven't already) I have finally decided to start my
-blogging adventure. To do so I am using &lt;a class="reference external" href="https://github.com/getpelican/pelican"&gt;Pelican&lt;/a&gt;.
-So far it's working very nicely - I am …&lt;/p&gt;</summary><content type="html">&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;fn&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="fm"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Hello world!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;This is a first post. Inspired by a &lt;a class="reference external" href="https://stasiak.at"&gt;Jakub Stasiak's blog&lt;/a&gt;
-(I encourage you to visit it if you haven't already) I have finally decided to start my
-blogging adventure. To do so I am using &lt;a class="reference external" href="https://github.com/getpelican/pelican"&gt;Pelican&lt;/a&gt;.
-So far it's working very nicely - I am glad I resisted the urge to roll my own solution.
-I am using modified &lt;a class="reference external" href="https://github.com/panmar/panmar.github.io"&gt;Jakub's theme&lt;/a&gt;, which
-I've been tweaking during night hours - hence a dark theme.&lt;/p&gt;
-</content><category term="misc"></category><category term="meta"></category></entry></feed>
+</content><category term="misc"></category><category term="projects"></category></entry></feed>
