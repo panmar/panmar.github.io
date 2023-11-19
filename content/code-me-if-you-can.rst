@@ -2,6 +2,7 @@ Code me if you can
 ##################
 
 :date: 2023-11-09 15:15
+:tags: projects
 :status: draft
 
 .. image:: /images/autumn.jpeg
