@@ -9,9 +9,9 @@ Code me if you can
     :alt: Autumn forest
     :align: center
 
-Some time ago, I started writing down ideas for projects I could implement for fun. Here are a few to spend those long, autumn nights:
+Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights:
 
-* write a `Hack <https://en.wikipedia.org/wiki/Hack_computer>`_ computer emulator
+* write a `Hack computer <https://en.wikipedia.org/wiki/Hack_computer>`_ emulator
     * inspired by a book `The Elements of Computing Systems: Building a Modern Computer from First Principles <https://www.amazon.com/Elements-Computing-Systems-Building-Principles/dp/0262640686>`_.
     * start from NAND gate
     * end with a simple game running on the system (Pong, Snake or Tetris)
@@ -22,7 +22,7 @@ Some time ago, I started writing down ideas for projects I could implement for f
 * implement an ultraprivate chat webapp
     * use end to end encryption
 * implement a chess agent using less than 1024 tokens and maximum 256 MB of memory
-    * inspired by Sebastian Lague `challange <https://www.youtube.com/watch?v=iScy18pVR58>`_
+    * inspired by `Sebastian Lague challange <https://www.youtube.com/watch?v=iScy18pVR58>`_
     * write a few agents and let them play
 * implement a simple dlna server serving movies to TV
     * reverse-engineer existing solutions using wireshark
