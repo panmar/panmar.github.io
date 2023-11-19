@@ -1,9 +1,9 @@
 Code me if you can
 ##################
 
-:date: 2023-11-09 15:15
+:date: 2023-11-19 22:02
 :tags: projects
-:status: draft
+:status: published
 
 .. image:: /images/autumn.jpeg
     :alt: Autumn forest
