@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk - projects</title><link href="https://marcinpanasiuk.com/" rel="alternate"></link><link href="https://marcinpanasiuk.com/feeds/projects.atom.xml" rel="self"></link><id>https://marcinpanasiuk.com/</id><updated>2023-11-19T22:02:00+01:00</updated><entry><title>Code me if you can</title><link href="https://marcinpanasiuk.com/code-me-if-you-can.html" rel="alternate"></link><published>2023-11-19T22:02:00+01:00</published><updated>2023-11-19T22:02:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2023-11-19:/code-me-if-you-can.html</id><summary type="html">&lt;img alt="Autumn forest" class="align-center" src="/images/autumn.jpeg" /&gt;
-&lt;p&gt;Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights:&lt;/p&gt;
+&lt;p&gt;Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights on:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
 &lt;dt&gt;write a &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Hack_computer"&gt;Hack computer&lt;/a&gt; emulator&lt;/dt&gt;
 &lt;dd&gt;&lt;ul class="first last"&gt;
 &lt;li&gt;inspired by a book &lt;a class="reference external" href="https://www.amazon.com/Elements-Computing-Systems-Building-Principles/dp/0262640686"&gt;The Elements of Computing Systems: Building a Modern Computer from First Principles&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;start from NAND gate&lt;/li&gt;
-&lt;li&gt;end …&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;img alt="Autumn forest" class="align-center" src="/images/autumn.jpeg" /&gt;
-&lt;p&gt;Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights:&lt;/p&gt;
+&lt;li&gt;start from NAND gate …&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;img alt="Autumn forest" class="align-center" src="/images/autumn.jpeg" /&gt;
+&lt;p&gt;Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights on:&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
 &lt;dt&gt;write a &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Hack_computer"&gt;Hack computer&lt;/a&gt; emulator&lt;/dt&gt;
@@ -24,7 +23,7 @@
 &lt;dt&gt;solve a maze by pouring liquid&lt;/dt&gt;
 &lt;dd&gt;&lt;ul class="first last"&gt;
 &lt;li&gt;implement simple 2d liquid physics&lt;/li&gt;
-&lt;li&gt;optimize, optimize, optmize&lt;/li&gt;
+&lt;li&gt;optimize, optimize, optimize&lt;/li&gt;
 &lt;li&gt;make simulation look nice&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/dd&gt;
