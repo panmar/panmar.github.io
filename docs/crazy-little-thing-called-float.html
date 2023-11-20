@@ -198,11 +198,11 @@
         <a href="/">Marcin Panasiuk</a>
     </div>
     <nav>
-        <a  href="/">Posts</a>
+        <a  class="active"  href="/">Posts</a>
         |
         <a  href="/tags.html">Tags</a>
         |
-        <a  class="active"  href="/pages/projects.html">Projects</a>
+        <a  href="/pages/projects.html">Projects</a>
         |
         <a  href="/pages/contact.html">Contact</a>
         |
@@ -210,30 +210,35 @@
     </nav>
     <div id="content">
         <div id="innercontent">
+<h1>Crazy Little Thing Called Float</h1>
+<header>
+  Published on <time datetime="2023-11-20T11:28:00+01:00">2023-11-20</time>.
+    Tagged with
+      <a href="/tag/c.html">c++</a>.
+</header>
 
-<div class="section" id="programming">
-<h2>Programming</h2>
-<ul class="simple">
-<li><a class="reference external" href="https://marcinpanasiuk.com/liquid-maze-solver">liquid-maze-solver</a> - a liquid maze solver</li>
-<li><a class="reference external" href="https://marcinpanasiuk.com/micro-mouse">micro-mouse</a> - a micromouse maze solver</li>
-<li><a class="reference external" href="https://github.com/panmar/chess">chess</a> - a chess webapp</li>
-<li><a class="reference external" href="https://github.com/panmar/chip8-emulator">chip8-emulator</a> - CHIP-8 emulator</li>
-<li><a class="reference external" href="https://github.com/panmar/playsh">playsh</a> - a shadertoy clone</li>
-<li><a class="reference external" href="https://github.com/panmar/playgl">playgl</a> - a rendering playground</li>
-<li><a class="reference external" href="https://github.com/panmar/pytracer">pytracer</a> - a simple raytracer</li>
-<li><a class="reference external" href="https://github.com/panmar/tetris3d">tetris3d</a> - a tetris game, but 3D</li>
-<li><a class="reference external" href="https://panmar.github.io/portfolio-template/">portfolio</a> - one-page portfolio template</li>
-<li><a class="reference external" href="https://panmar.github.io/amonsun/">amonsun</a> - a terrain and atmosphere renderer</li>
-<li><a class="reference external" href="https://panmar.github.io/exnihilo/">exnihilo</a> - a puzzle 3d platformer</li>
-<li><a class="reference external" href="https://panmar.github.io/insomnia/">insomnia</a> - a scary game where you are a detective and the world is a mystery</li>
-</ul>
-</div>
-<div class="section" id="other">
-<h2>Other</h2>
-<ul class="simple">
-<li>I once played in a local theater performance <a class="reference external" href="http://iatelier.pl/nasze-projekty/merkucjo-i-tybalt-nie-zyja/">Mercutio and Tybalt are dead</a>.</li>
-</ul>
-</div>
+<p>What's wrong with this C++ code?</p>
+<div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">16777217.f</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">16777218.f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">f</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.f</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+<p>It will run forever.</p>
+<p>It is pretty common knowledge that the best way to get broke is to use <a class="reference external" href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">floats</a> to store money. Clearly, not all rational numbers can be represented as floating-point numbers:</p>
+<div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%1.10f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.7f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 0.6999999881</span>
+</pre></div>
+<p>A little less known fact is that floats distribution is not uniform. The farther away from 0.0 the larger <strong>gaps</strong> without any representation.</p>
+<p>Lets look at the numbers from the first code sample:</p>
+<div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%20.16f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">16777217.f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 16777216.0000000000000000</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&quot;%20.16f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">16777218.f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 16777218.0000000000000000</span>
+</pre></div>
+<p>Now we can see that between <strong>16,777,216</strong> and <strong>16,777,218</strong> there is a pretty large gap.
+If you kept tracking your dollars as floats around 16M there would be gaps as big as 2$.</p>
+<p>How fast will those gaps grow? At around <strong>140,000,000</strong> we can find gaps of size 16. At around <strong>1,000,000, 000</strong> of size 64.</p>
+<p>To see how floating-point numbers are stored internally, you can play with this nice tool <a class="reference external" href="https://float.exposed/0x4b800001">here</a>.</p>
 
 
             <hr class="before-footer">
