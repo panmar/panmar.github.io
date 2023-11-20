@@ -9,7 +9,7 @@ Code me if you can
     :alt: Autumn forest
     :align: center
 
-Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights:
+Some time ago, I started writing down ideas I could implement for fun. Here are a few projects to spend those long, autumn nights on:
 
 * write a `Hack computer <https://en.wikipedia.org/wiki/Hack_computer>`_ emulator
     * inspired by a book `The Elements of Computing Systems: Building a Modern Computer from First Principles <https://www.amazon.com/Elements-Computing-Systems-Building-Principles/dp/0262640686>`_.
@@ -17,7 +17,7 @@ Some time ago, I started writing down ideas I could implement for fun. Here are 
     * end with a simple game running on the system (Pong, Snake or Tetris)
 * solve a maze by pouring liquid
     * implement simple 2d liquid physics
-    * optimize, optimize, optmize
+    * optimize, optimize, optimize
     * make simulation look nice
 * implement an ultraprivate chat webapp
     * use end to end encryption
