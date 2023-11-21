@@ -3,7 +3,7 @@ Interview with the Programmer
 
 :date: 2023-11-21 10:00
 :tags: interview
-:status: draft
+:status: published
 
 It is hard to hire a good programmer. There are many interview approaches that help choose the best candidate. Here are three I find particularly interesting:
 
