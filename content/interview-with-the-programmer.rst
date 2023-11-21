@@ -5,7 +5,7 @@ Interview with the Programmer
 :tags: interview
 :status: draft
 
-It is hard to hire a good programmer. There are many interview approaches that help choosing the best candidate. Here are three that I find particularly interesting:
+It is hard to hire a good programmer. There are many interview approaches that help choose the best candidate. Here are three I find particularly interesting:
 
 * `"Tell me about your project and I'll tell you who you are..."`
 
@@ -13,7 +13,7 @@ It is hard to hire a good programmer. There are many interview approaches that h
 
 * `"Found this bug. What could have caused it?"`
 
-    Hussein Nasser discusses `his favorite interview approach <https://www.youtube.com/watch?v=bDIB2eIzIC8>`_, which starts with outlining a general system (e.g., database, webserver, reverse proxy, load balancer, frontend app) and reporting a specific issue (e.g., UI freezing for about a minute after clicking a button). He then asks a candidates how they would debug the problem. This open-ended question encourages candidates to discuss the parts of the system they are most interested in, naturally revealing their strengths and passions. Hussein notes that he has never received the same answer twice.
+    Hussein Nasser discusses `his favorite interview approach <https://www.youtube.com/watch?v=bDIB2eIzIC8>`_, which starts with outlining a general system (e.g., database, webserver, reverse proxy, load balancer, frontend app) and reporting a specific issue (e.g., UI freezing for about a minute after clicking a button). He then asks a candidate how he would debug the problem. This open-ended question encourages interviewee to discuss the parts of the system he is most interested in, naturally revealing his strengths and passions. Hussein notes that he has never received the same answer twice.
 
 * `"Here's the source code. Add some feature..."`
     
