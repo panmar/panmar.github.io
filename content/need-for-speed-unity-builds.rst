@@ -1,13 +1,13 @@
 Need for speed: C++ unity builds
 ################################
 
-:date: 2023-11-22 12:00
+:date: 2023-11-22 11:40
 :tags: c++
-:status: draft
+:status: published
 
-As I type these words, I'm staring at the LLVM compilation screen, which has been running for an hour. What a waste of energy. I really detest long C++ compilation times.
+As I type these words, I'm staring at the LLVM compilation screen, which has been running for about an hour. What a waste of energy. I really hate long compilation times.
 
-To address this issue, I began using `unity builds <https://en.wikipedia.org/wiki/Unity_build>`_. Unity builds consolidate all code into a single translation unit. How much time can I save by organizing the code in this manner? I wrote `a simple test <https://github.com/panmar/unity-builds-cmp/>`_ where I generated 10000 files:
+To address this issue, I started using `unity builds <https://en.wikipedia.org/wiki/Unity_build>`_. They consolidate all code into a single translation unit. How much time can I save by organizing the code in this manner? I wrote `a simple test <https://github.com/panmar/unity-builds-cmp/>`_ where I generated 10000 files:
 
 .. code-block:: C++
 
