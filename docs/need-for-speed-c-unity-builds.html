@@ -215,35 +215,59 @@
     </nav>
     <div id="content">
         <div id="innercontent">
-<h1>Crazy Little Thing Called Float</h1>
+<h1>Need for speed: C++ unity builds</h1>
 <header>
-  Published on <time datetime="2023-11-20T11:28:00+01:00">2023-11-20</time>.
+  Published on <time datetime="2023-11-22T11:40:00+01:00">2023-11-22</time>.
     Tagged with
       <a href="/tag/c.html">c++</a>.
 </header>
 
-<p>What's wrong with this C++ code?</p>
-<div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">16777217.f</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">16777218.f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">f</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.f</span><span class="p">;</span><span class="w"></span>
+<p>As I type these words, I'm staring at the LLVM compilation screen, which has been running for about an hour. What a waste of energy. I really hate long compilation times.</p>
+<p>To address this issue, I started using <a class="reference external" href="https://en.wikipedia.org/wiki/Unity_build">unity builds</a>. They consolidate all code into a single translation unit. How much time can I save by organizing the code in this manner? I wrote <a class="reference external" href="https://github.com/panmar/unity-builds-cmp/">a simple test</a> where I generated 10000 files:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;set&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;functional&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;random&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span><span class="cp"></span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTestClazzX</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">func</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Hello from class &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">MyTestClassX</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
 </pre></div>
-<p>It will run forever.</p>
-<p>It is pretty common knowledge that the best way to get broke is to use <a class="reference external" href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">floats</a> to store money. Clearly, not all rational numbers can be represented as floating-point numbers:</p>
-<div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%1.10f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">0.7f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 0.6999999881</span>
+<p>I then performed different compilations. Here are the results:</p>
+<div class="highlight"><pre><span></span>➜  unity-builds-cmp git:<span class="o">(</span>main<span class="o">)</span> ✗ python test_unity_build.py <span class="m">10000</span>
+Cleaning src/ directory
+Generating <span class="m">10000</span> files...
+Compiling unity build... <span class="o">[</span>g++<span class="o">]</span>
+    DONE. The process took <span class="m">20</span>.84 seconds
+Compiling unity build using... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">10</span>.60 seconds
+Compiling normal build using <span class="m">12</span> cores... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">916</span>.86 seconds
 </pre></div>
-<p>A little less known fact is that floats distribution is not uniform. The farther away from 0.0 the larger <strong>gaps</strong> without any representation.</p>
-<p>Lets look at the numbers from the first code sample:</p>
-<div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%20.16f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">16777217.f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 16777216.0000000000000000</span>
-<span class="n">printf</span><span class="p">(</span><span class="s">&quot;%20.16f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">16777218.f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 16777218.0000000000000000</span>
+<p>The single-threaded unity build was about 90 times faster than the normal one, even though the normal build was utilizing multiple cores. Of course, the exact results are artifical and depend very much on the files you are compiling, but the sheer difference is astonishing.</p>
+<p>I use unity builds for my private projects, which consist usually of no more than 100 files. Here are the results for 100:</p>
+<div class="highlight"><pre><span></span>➜  unity-builds-cmp git:<span class="o">(</span>main<span class="o">)</span> ✗ python test_unity_build.py <span class="m">100</span>
+Cleaning src/ directory
+Generating <span class="m">100</span> files...
+Compiling unity build... <span class="o">[</span>g++<span class="o">]</span>
+    DONE. The process took <span class="m">0</span>.64 seconds
+Compiling unity build using... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">0</span>.58 seconds
+Compiling normal build using <span class="m">12</span> cores... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">7</span>.48 seconds
 </pre></div>
-<p>Now we can see that between <strong>16,777,216</strong> and <strong>16,777,218</strong> there is a pretty large gap.
-If you kept tracking your dollars as floats around 16M there would be gaps as big as 2$.</p>
-<p>How fast will those gaps grow? At around <strong>140,000,000</strong> we can find gaps of size 16. At around <strong>1,000,000, 000</strong> of size 64.</p>
-<p>To see how floating-point numbers are stored internally, you can play with this nice tool <a class="reference external" href="https://float.exposed/0x4b800001">here</a>.</p>
+<p>About 13 times faster. This is noticeable and definitely worthwhile for me.</p>
+<p>You can learn more about unity builds from <a class="reference external" href="https://onqtam.com/programming/2018-07-07-unity-builds/">Viktor Kirilov</a>.</p>
 
 
             <hr class="before-footer">

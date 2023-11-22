@@ -1,5 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk</title><link href="https://marcinpanasiuk.com/" rel="alternate"></link><link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="self"></link><id>https://marcinpanasiuk.com/</id><updated>2023-11-21T10:00:00+01:00</updated><entry><title>Interview with the Programmer</title><link href="https://marcinpanasiuk.com/interview-with-the-programmer.html" rel="alternate"></link><published>2023-11-21T10:00:00+01:00</published><updated>2023-11-21T10:00:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2023-11-21:/interview-with-the-programmer.html</id><summary type="html">&lt;p&gt;It is hard to hire a good programmer. There are many interview approaches that help choose the best candidate. Here are three I find particularly interesting:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk</title><link href="https://marcinpanasiuk.com/" rel="alternate"></link><link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="self"></link><id>https://marcinpanasiuk.com/</id><updated>2023-11-22T11:40:00+01:00</updated><entry><title>Need for speed: C++ unity builds</title><link href="https://marcinpanasiuk.com/need-for-speed-c-unity-builds.html" rel="alternate"></link><published>2023-11-22T11:40:00+01:00</published><updated>2023-11-22T11:40:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2023-11-22:/need-for-speed-c-unity-builds.html</id><summary type="html">&lt;p&gt;As I type these words, I'm staring at the LLVM compilation screen, which has been running for about an hour. What a waste of energy. I really hate long compilation times.&lt;/p&gt;
+&lt;p&gt;To address this issue, I started using &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Unity_build"&gt;unity builds&lt;/a&gt;. They consolidate all code into a single translation unit. How …&lt;/p&gt;</summary><content type="html">&lt;p&gt;As I type these words, I'm staring at the LLVM compilation screen, which has been running for about an hour. What a waste of energy. I really hate long compilation times.&lt;/p&gt;
+&lt;p&gt;To address this issue, I started using &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Unity_build"&gt;unity builds&lt;/a&gt;. They consolidate all code into a single translation unit. How much time can I save by organizing the code in this manner? I wrote &lt;a class="reference external" href="https://github.com/panmar/unity-builds-cmp/"&gt;a simple test&lt;/a&gt; where I generated 10000 files:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;vector&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;memory&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;map&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;set&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;chrono&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;functional&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;random&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;fstream&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;thread&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nc"&gt;MyTestClazzX&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;func&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Hello from class &amp;quot;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;MyTestClassX&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;endl&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I then performed different compilations. Here are the results:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;➜  unity-builds-cmp git:&lt;span class="o"&gt;(&lt;/span&gt;main&lt;span class="o"&gt;)&lt;/span&gt; ✗ python test_unity_build.py &lt;span class="m"&gt;10000&lt;/span&gt;
+Cleaning src/ directory
+Generating &lt;span class="m"&gt;10000&lt;/span&gt; files...
+Compiling unity build... &lt;span class="o"&gt;[&lt;/span&gt;g++&lt;span class="o"&gt;]&lt;/span&gt;
+    DONE. The process took &lt;span class="m"&gt;20&lt;/span&gt;.84 seconds
+Compiling unity build using... &lt;span class="o"&gt;[&lt;/span&gt;clang++&lt;span class="o"&gt;]&lt;/span&gt;
+    DONE. The process took &lt;span class="m"&gt;10&lt;/span&gt;.60 seconds
+Compiling normal build using &lt;span class="m"&gt;12&lt;/span&gt; cores... &lt;span class="o"&gt;[&lt;/span&gt;clang++&lt;span class="o"&gt;]&lt;/span&gt;
+    DONE. The process took &lt;span class="m"&gt;916&lt;/span&gt;.86 seconds
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The single-threaded unity build was about 90 times faster than the normal one, even though the normal build was utilizing multiple cores. Of course, the exact results are artifical and depend very much on the files you are compiling, but the sheer difference is astonishing.&lt;/p&gt;
+&lt;p&gt;I use unity builds for my private projects, which consist usually of no more than 100 files. Here are the results for 100:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;➜  unity-builds-cmp git:&lt;span class="o"&gt;(&lt;/span&gt;main&lt;span class="o"&gt;)&lt;/span&gt; ✗ python test_unity_build.py &lt;span class="m"&gt;100&lt;/span&gt;
+Cleaning src/ directory
+Generating &lt;span class="m"&gt;100&lt;/span&gt; files...
+Compiling unity build... &lt;span class="o"&gt;[&lt;/span&gt;g++&lt;span class="o"&gt;]&lt;/span&gt;
+    DONE. The process took &lt;span class="m"&gt;0&lt;/span&gt;.64 seconds
+Compiling unity build using... &lt;span class="o"&gt;[&lt;/span&gt;clang++&lt;span class="o"&gt;]&lt;/span&gt;
+    DONE. The process took &lt;span class="m"&gt;0&lt;/span&gt;.58 seconds
+Compiling normal build using &lt;span class="m"&gt;12&lt;/span&gt; cores... &lt;span class="o"&gt;[&lt;/span&gt;clang++&lt;span class="o"&gt;]&lt;/span&gt;
+    DONE. The process took &lt;span class="m"&gt;7&lt;/span&gt;.48 seconds
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;About 13 times faster. This is noticeable and definitely worthwhile for me.&lt;/p&gt;
+&lt;p&gt;You can learn more about unity builds from &lt;a class="reference external" href="https://onqtam.com/programming/2018-07-07-unity-builds/"&gt;Viktor Kirilov&lt;/a&gt;.&lt;/p&gt;
+</content><category term="misc"></category><category term="c++"></category></entry><entry><title>Interview with the Programmer</title><link href="https://marcinpanasiuk.com/interview-with-the-programmer.html" rel="alternate"></link><published>2023-11-21T10:00:00+01:00</published><updated>2023-11-21T10:00:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2023-11-21:/interview-with-the-programmer.html</id><summary type="html">&lt;p&gt;It is hard to hire a good programmer. There are many interview approaches that help choose the best candidate. Here are three I find particularly interesting:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p class="first"&gt;&lt;cite&gt;&amp;quot;Tell me about your project and I'll tell you who you are...&amp;quot;&lt;/cite&gt;&lt;/p&gt;
 &lt;blockquote&gt;
