@@ -80,7 +80,7 @@
         div#logo {
             width: 100%;
             text-align: center;
-            font-size: 200%;
+            font-size: 150%;
         }
 
         div#logo a {
@@ -155,6 +155,11 @@
             display: block;
         }
 
+        img {
+            width: 60%;
+            height: auto;
+        }
+
         .literal-block {
             background-color: rgb(25, 31, 38);
             color: rgb(230, 226, 207);
@@ -212,15 +217,62 @@
         <div id="innercontent">
 <h1>Need for speed: C++ unity builds</h1>
 <header>
-  Published on <time datetime="2023-11-08T02:04:00+01:00">2023-11-08</time>.
+  Published on <time datetime="2023-11-22T12:00:00+01:00">2023-11-22</time>.
+    Tagged with
+      <a href="/tag/c.html">c++</a>.
 </header>
 
-<p>bla bla</p>
+<p>As I type these words, I'm staring at the LLVM compilation screen, which has been running for an hour. What a waste of energy. I really detest long C++ compilation times.</p>
+<p>To address this issue, I began using <a class="reference external" href="https://en.wikipedia.org/wiki/Unity_build">unity builds</a>. Unity builds consolidate all code into a single translation unit. How much time can I save by organizing the code in this manner? I wrote <a class="reference external" href="https://github.com/panmar/unity-builds-cmp/">a simple test</a> where I generated 10000 files:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;set&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;functional&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;random&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span><span class="cp"></span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTestClazzX</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">func</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Hello from class &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">MyTestClassX</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+<p>I then performed different compilations. Here are the results:</p>
+<div class="highlight"><pre><span></span>➜  unity-builds-cmp git:<span class="o">(</span>main<span class="o">)</span> ✗ python test_unity_build.py <span class="m">10000</span>
+Cleaning src/ directory
+Generating <span class="m">10000</span> files...
+Compiling unity build... <span class="o">[</span>g++<span class="o">]</span>
+    DONE. The process took <span class="m">20</span>.84 seconds
+Compiling unity build using... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">10</span>.60 seconds
+Compiling normal build using <span class="m">12</span> cores... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">916</span>.86 seconds
+</pre></div>
+<p>The single-threaded unity build was about 90 times faster than the normal one, even though the normal build was utilizing multiple cores. Of course, the exact results are artifical and depend very much on the files you are compiling, but the sheer difference is astonishing.</p>
+<p>I use unity builds for my private projects, which consist usually of no more than 100 files. Here are the results for 100:</p>
+<div class="highlight"><pre><span></span>➜  unity-builds-cmp git:<span class="o">(</span>main<span class="o">)</span> ✗ python test_unity_build.py <span class="m">100</span>
+Cleaning src/ directory
+Generating <span class="m">100</span> files...
+Compiling unity build... <span class="o">[</span>g++<span class="o">]</span>
+    DONE. The process took <span class="m">0</span>.64 seconds
+Compiling unity build using... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">0</span>.58 seconds
+Compiling normal build using <span class="m">12</span> cores... <span class="o">[</span>clang++<span class="o">]</span>
+    DONE. The process took <span class="m">7</span>.48 seconds
+</pre></div>
+<p>About 13 times faster. This is noticeable and definitely worthwhile for me.</p>
+<p>You can learn more about unity builds from <a class="reference external" href="https://onqtam.com/programming/2018-07-07-unity-builds/">Viktor Kirilov</a>.</p>
 
 
             <hr class="before-footer">
             <footer>
-                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/b091105">commit b091105</a> on <nobr>2023-11-08 12:27:19+01:00</nobr>.
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/6d49434">commit 6d49434</a> on <nobr>2023-11-22 02:09:56+01:00</nobr>.
                 Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
             </footer>
         </div>
