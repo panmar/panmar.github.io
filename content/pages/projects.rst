@@ -7,6 +7,7 @@ Programming
 * `liquid-maze-solver <https://marcinpanasiuk.com/liquid-maze-solver>`_ - a liquid maze solver
 * `micro-mouse <https://marcinpanasiuk.com/micro-mouse>`_ - a micromouse maze solver
 * `chess <https://github.com/panmar/chess>`_ - a chess webapp
+* `wetalk <https://github.com/panmar/wetalk>`_ - a chat webapp
 * `chip8-emulator <https://github.com/panmar/chip8-emulator>`_ - CHIP-8 emulator
 * `playsh <https://github.com/panmar/playsh>`_ - a shadertoy clone
 * `playgl <https://github.com/panmar/playgl>`_ - a rendering playground
