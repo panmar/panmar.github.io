@@ -1,8 +1,8 @@
 Projects
 ##########
 
-Programming
-===========
+Recreational programming
+========================
 
 * `liquid-maze-solver <https://marcinpanasiuk.com/liquid-maze-solver>`_ - a liquid maze solver
 * `micro-mouse <https://marcinpanasiuk.com/micro-mouse>`_ - a micromouse maze solver
