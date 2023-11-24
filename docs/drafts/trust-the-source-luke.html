@@ -251,8 +251,8 @@
 </pre></div>
 <p>Could we get the value of the <code>secret[index]</code> provided we have only access to <code>index</code> and <code>detector[]</code>? According to the source code and disassembly we should not, right?</p>
 <p>Right?</p>
-<p>Welcome to hardware land! CPU hate doing nothing. If there is a cache miss in the branch condition <code>index &lt; secret_bounds</code>, which would make CPU stall for a while, CPU can calculate <code>x = x ^ detector[...]</code> doing so called <a class="reference external" href="https://en.wikipedia.org/wiki/Speculative_execution">speculative execution</a>. If the condition, fetched from the memory, were false, it would simply not commit speculative results. So what's the problem? The problem is due to speculative execution CPU would fetch <code>detector[secret[index] * ...]</code> into cache, even if we did not meet the branch condition!</p>
-<p>So if we evicted whole cache, execute <code>kernel_func</code> making CPU do branch prediction (e.g. run it with correct <code>index</code> a few times before) and run:</p>
+<p>Welcome to hardware land! CPU hate doing nothing. If there is a cache miss in the branch condition <code>index &lt; secret_bounds</code>, which would make CPU stall for a while, CPU can calculate <code>x = x ^ detector[...]</code> doing so called <a class="reference external" href="https://en.wikipedia.org/wiki/Speculative_execution">speculative execution</a>. If the condition, fetched from the memory, was false, it would simply not commit speculative results. So what's the problem? The problem is due to speculative execution CPU would fetch <code>detector[secret[index] * ...]</code> into cache, even if we did <strong>not</strong> meet the branch condition!</p>
+<p>So if we evicted whole cache, executed <code>kernel_func</code> making CPU do branch prediction (e.g. run it with correct <code>index</code> a few times before) and ran:</p>
 <div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rdtsc</span><span class="p">();</span><span class="w">  </span><span class="c1">// high-precision timer</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detector</span><span class="p">[</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SOME_BIG_NUMBER</span><span class="p">];</span><span class="w"></span>
 <span class="k">auto</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rdtsc</span><span class="p">();</span><span class="w"></span>
@@ -265,7 +265,7 @@
 
             <hr class="before-footer">
             <footer>
-                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/6884bf1">commit 6884bf1</a> on <nobr>2023-11-24 15:51:18+01:00</nobr>.
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/3748733">commit 3748733</a> on <nobr>2023-11-24 16:21:29+01:00</nobr>.
                 Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
             </footer>
         </div>
