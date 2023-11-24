@@ -39,5 +39,5 @@
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In this manner, we could have determined if &lt;code&gt;secret[index]&lt;/code&gt; was 'A' simply by measuring the time difference (a small time indicating it was fetched into the cache by &lt;em&gt;speculative execution&lt;/em&gt;). We could repeat the entire process for 'B', 'C', 'D', etc., and voilà!&lt;/p&gt;
 &lt;p&gt;This vulnerability, called &lt;a class="reference external" href="https://meltdownattack.com"&gt;Spectre/Meltdown&lt;/a&gt;, has been described in more detail in &lt;a class="reference external" href="https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html"&gt;&amp;quot;Reading privilaged memory with a side-channel&amp;quot;&lt;/a&gt; by Jann Horn.&lt;/p&gt;
-&lt;p&gt;Trust no one, Luke ;)&lt;/p&gt;
+&lt;p&gt;Be careful where you place your trust.&lt;/p&gt;
 </content><category term="misc"></category><category term="c++"></category><category term="security"></category></entry></feed>
