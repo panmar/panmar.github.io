@@ -255,9 +255,9 @@
 <span class="w">    </span><span class="nf">pop</span><span class="w">     </span><span class="nb">ebp</span><span class="w"></span>
 <span class="w">    </span><span class="nf">ret</span><span class="w">     </span><span class="mi">0</span><span class="w"></span>
 </pre></div>
-<p>Could we obtain the value of the <code>secret[index]</code> with access only to <code>index</code>, <code>detector[]</code> and the value of <code>SOME_BIG_NUMBER</code>? According to the source code and disassembly we should not, right?</p>
+<p>Could we obtain the value of the <code>secret[index]</code> for indices outside of <code>public_bounds</code>, if we have only access to <code>index</code>, <code>detector[]</code> and the value of <code>SOME_BIG_NUMBER</code>? According to the source code and disassembly we should not, right?</p>
 <p>Right?</p>
-<p>Welcome to hardware land! CPU hates idleness. If there is a cache miss in the branch condition <code>index &lt; public_bounds</code>, which would make CPU stall for a while, CPU can calculate <code>x = x ^ detector[...]</code> doing <a class="reference external" href="https://en.wikipedia.org/wiki/Speculative_execution">speculative execution</a>. If the condition, fetched from memory, turns out to be false, the CPU simply doesn't commit the speculative result. So, what's the issue? The problem arises because the CPU can fetch <code>detector[secret[index] * ...]</code> into cache, even if the branch condition is <strong>not</strong> met!</p>
+<p>Welcome to hardware land! CPU hates idleness. If there is a cache miss in the branch condition <code>index &lt; public_bounds</code>, which would make CPU stall for a while, CPU can calculate <code>x = x ^ detector[secret[index] * ...]</code> doing <a class="reference external" href="https://en.wikipedia.org/wiki/Speculative_execution">speculative execution</a>. If the condition, fetched from memory, turns out to be false, the CPU simply doesn't commit the speculative result. So, what's the issue? The problem arises because the CPU can fetch <code>detector[secret[index] * ...]</code> into cache, even if the branch condition is <strong>not</strong> met!</p>
 <p>So, in the user process, we could've evicted whole cache, executed <code>kernel_func</code> making CPU do branch prediction (by running it with a valid <code>index</code> a few times beforehand), and then executed:</p>
 <div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__rdtsc</span><span class="p">();</span><span class="w">  </span><span class="c1">// high-precision timer</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detector</span><span class="p">[</span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SOME_BIG_NUMBER</span><span class="p">];</span><span class="w"></span>
@@ -271,7 +271,7 @@
 
             <hr class="before-footer">
             <footer>
-                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/7592275">commit 7592275</a> on <nobr>2023-11-24 19:42:21+01:00</nobr>.
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/ec91960">commit ec91960</a> on <nobr>2023-11-24 19:58:29+01:00</nobr>.
                 Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
             </footer>
         </div>
