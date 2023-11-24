@@ -73,3 +73,11 @@
 .highlight .s1 { color: #b8cc52 } /* Literal.String.Single */
 .highlight .ss { color: #b8cc52 } /* Literal.String.Symbol */
 
+code {
+  background: hsl(210, 25%, 8%);
+  color: #ff7733;
+  border-width: 1px;
+  border-style: solid;
+  border-color: hsl(212, 13%, 20%);
+  padding: 3px;
+}
