@@ -1,15 +1,15 @@
 Trust the Source, Luke
 ######################
 
-:date: 2023-11-24 17:00
+:date: 2023-11-24 19:30
 :tags: c++, security
-:status: draft
+:status: published
 
 .. image:: /images/yoda.jpg
     :alt: Yoda
     :align: center
 
-It is a common belief that the only documentation programmer should rely on is the source code. Some experienced programmers argue that you should only trust in the disassembly. However, I'd like to present a case where neither of these beliefs holds true.
+It is a common belief that the only documentation a programmer should rely on is the source code. Some experienced engineers argue that one should only trust in the disassembly. However, I'd like to present a case where neither of these beliefs holds true.
 
 Consider this kernel code:
 
@@ -42,13 +42,13 @@ Consider this kernel code:
 
 
 
-Could we get the value of the :code:`secret[index]` provided we have only access to :code:`index`, :code:`detector[]` and :code:`SOME_BIG_NUMBER` value? According to the source code and disassembly we should not, right?
+Could we obtain the value of the :code:`secret[index]` with access only to :code:`index`, :code:`detector[]` and the value of :code:`SOME_BIG_NUMBER`? According to the source code and disassembly we should not, right?
 
 Right?
 
-Welcome to hardware land! CPU hate doing nothing. If there is a cache miss in the branch condition :code:`index < public_bounds`, which would make CPU stall for a while, CPU can calculate :code:`x = x ^ detector[...]` doing so called `speculative execution <https://en.wikipedia.org/wiki/Speculative_execution>`_. If the condition, fetched from the memory, was false, it would simply not commit speculative results. So what's the problem? Due to the speculative execution CPU would fetch :code:`detector[secret[index] * ...]` into cache, even if we did **not** meet the branch condition!
+Welcome to hardware land! CPU hates idleness. If there is a cache miss in the branch condition :code:`index < public_bounds`, which would make CPU stall for a while, CPU can calculate :code:`x = x ^ detector[...]` doing so called `speculative execution <https://en.wikipedia.org/wiki/Speculative_execution>`_. If the condition, fetched from memory, turns out to be false, the CPU simply doesn't commit the speculative result. So, what's the issue? he problem arises because, due to speculative execution, the CPU fetches :code:`detector[secret[index] * ...]` into cache, even if the branch condition is **not** met!
 
-So, in the user process, we could've evicted whole cache, executed :code:`kernel_func` making CPU do branch prediction (e.g. run it with valid :code:`index` a few times before) and ran:
+So, in the user process, we could've evicted whole cache, executed :code:`kernel_func` making CPU do branch prediction (by running it with a valid :code:`index` a few times beforehand), and then executed:
 
 .. code-block:: c++
 
@@ -57,7 +57,7 @@ So, in the user process, we could've evicted whole cache, executed :code:`kernel
     auto end = __rdtsc();
     auto diff = end - start;
 
-In that way, we could have guessed if :code:`secret[index]` was 'A' by simply measuring :code:`diff` (small time means it was fetched into the cache by *the speculative execution*). We could then repeat the whole process for 'B', 'C', 'D', etc., and voilà!
+In this manner, we could have determined if :code:`secret[index]` was 'A' simply by measuring the time difference (a small time indicating it was fetched into the cache by *speculative execution*). We could then repeat the entire process for 'B', 'C', 'D', etc., and voilà!
 
 This vulnerability, called `Spectre/Meltdown <https://meltdownattack.com>`_, has been described in more detail in `"Reading privilaged memory with a side-channel" <https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html>`_ by Jann Horn.
 
