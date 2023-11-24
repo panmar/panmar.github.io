@@ -61,4 +61,4 @@ In this manner, we could have determined if :code:`secret[index]` was 'A' simply
 
 This vulnerability, called `Spectre/Meltdown <https://meltdownattack.com>`_, has been described in more detail in `"Reading privilaged memory with a side-channel" <https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html>`_ by Jann Horn.
 
-Trust no one, Luke ;)
+Be careful where you place your trust.
