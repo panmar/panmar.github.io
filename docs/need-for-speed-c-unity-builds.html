@@ -274,12 +274,13 @@ Compiling normal build using <span class="m">12</span> cores... <span class="o">
     DONE. The process took <span class="m">7</span>.48 seconds
 </pre></div>
 <p>About 13 times faster. This is noticeable and definitely worthwhile for me.</p>
+<p>So, what about cons? Certainly, putting everything into a single translation unit can result in a big mess. For your own code, you can divide it into modules with their own namespaces and be very cautious about any macro usage. The external code poses more challenges. You could compile it into a separate library and provide simplified API if you want to keep namespace super clean. Alternatively, for a small project, you might just include it directly.</p>
 <p>You can learn more about unity builds from <a class="reference external" href="https://onqtam.com/programming/2018-07-07-unity-builds/">Viktor Kirilov</a>.</p>
 
 
             <hr class="before-footer">
             <footer>
-                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/8c0d150">commit 8c0d150</a> on <nobr>2023-11-24 20:07:15+01:00</nobr>.
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/12a6096">commit 12a6096</a> on <nobr>2023-11-24 20:48:19+01:00</nobr>.
                 Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
             </footer>
         </div>
