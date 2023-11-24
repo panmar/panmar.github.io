@@ -62,4 +62,6 @@ I use unity builds for my private projects, which consist usually of no more tha
 
 About 13 times faster. This is noticeable and definitely worthwhile for me.
 
+So, what about cons? Certainly, putting everything into a single translation unit can result in a big mess. For your own code, you can divide it into modules with their own namespaces and be very cautious about any macro usage. The external code poses more challenges. You could compile it into a separate library and provide simplified API if you want to keep namespace super clean. Alternatively, for a small project, you might just include it directly.
+
 You can learn more about unity builds from `Viktor Kirilov <https://onqtam.com/programming/2018-07-07-unity-builds/>`_.
