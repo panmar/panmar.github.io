@@ -46,9 +46,9 @@ Could we get the value of the :code:`secret[index]` provided we have only access
 
 Right?
 
-Welcome to hardware land! CPU hate doing nothing. If there is a cache miss in the branch condition :code:`index < secret_bounds`, which would make CPU stall for a while, CPU can calculate :code:`x = x ^ detector[...]` doing so called `speculative execution <https://en.wikipedia.org/wiki/Speculative_execution>`_. If the condition, fetched from the memory, were false, it would simply not commit speculative results. So what's the problem? The problem is due to speculative execution CPU would fetch :code:`detector[secret[index] * ...]` into cache, even if we did not meet the branch condition!
+Welcome to hardware land! CPU hate doing nothing. If there is a cache miss in the branch condition :code:`index < secret_bounds`, which would make CPU stall for a while, CPU can calculate :code:`x = x ^ detector[...]` doing so called `speculative execution <https://en.wikipedia.org/wiki/Speculative_execution>`_. If the condition, fetched from the memory, was false, it would simply not commit speculative results. So what's the problem? The problem is due to speculative execution CPU would fetch :code:`detector[secret[index] * ...]` into cache, even if we did **not** meet the branch condition!
 
-So if we evicted whole cache, execute :code:`kernel_func` making CPU do branch prediction (e.g. run it with correct :code:`index` a few times before) and run:
+So if we evicted whole cache, executed :code:`kernel_func` making CPU do branch prediction (e.g. run it with correct :code:`index` a few times before) and ran:
 
 .. code-block:: c++
 
