@@ -42,11 +42,11 @@ Consider this kernel code:
 
 
 
-Could we obtain the value of the :code:`secret[index]` with access only to :code:`index`, :code:`detector[]` and the value of :code:`SOME_BIG_NUMBER`? According to the source code and disassembly we should not, right?
+Could we obtain the value of the :code:`secret[index]` for indices outside of :code:`public_bounds`, if we have only access to :code:`index`, :code:`detector[]` and the value of :code:`SOME_BIG_NUMBER`? According to the source code and disassembly we should not, right?
 
 Right?
 
-Welcome to hardware land! CPU hates idleness. If there is a cache miss in the branch condition :code:`index < public_bounds`, which would make CPU stall for a while, CPU can calculate :code:`x = x ^ detector[...]` doing `speculative execution <https://en.wikipedia.org/wiki/Speculative_execution>`_. If the condition, fetched from memory, turns out to be false, the CPU simply doesn't commit the speculative result. So, what's the issue? The problem arises because the CPU can fetch :code:`detector[secret[index] * ...]` into cache, even if the branch condition is **not** met!
+Welcome to hardware land! CPU hates idleness. If there is a cache miss in the branch condition :code:`index < public_bounds`, which would make CPU stall for a while, CPU can calculate :code:`x = x ^ detector[secret[index] * ...]` doing `speculative execution <https://en.wikipedia.org/wiki/Speculative_execution>`_. If the condition, fetched from memory, turns out to be false, the CPU simply doesn't commit the speculative result. So, what's the issue? The problem arises because the CPU can fetch :code:`detector[secret[index] * ...]` into cache, even if the branch condition is **not** met!
 
 So, in the user process, we could've evicted whole cache, executed :code:`kernel_func` making CPU do branch prediction (by running it with a valid :code:`index` a few times beforehand), and then executed:
 
