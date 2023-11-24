@@ -42,7 +42,7 @@ Consider this kernel code:
 
 
 
-Could we get the value of the :code:`secret[index]` provided we have only access to :code:`index` and :code:`detector[]`? According to the source code and disassembly we should not, right?
+Could we get the value of the :code:`secret[index]` provided we have only access to :code:`index`, :code:`detector[]` and we know :code:`SOME_BIG_NUMBER` value? According to the source code and disassembly we should not, right?
 
 Right?
 
