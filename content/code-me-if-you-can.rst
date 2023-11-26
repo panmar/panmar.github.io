@@ -5,7 +5,7 @@ Code me if you can
 :tags: projects
 :status: published
 
-.. image:: /images/autumn.jpeg
+.. image:: /images/autumn.jpg
     :alt: Autumn forest
     :align: center
 
