@@ -57,7 +57,7 @@ So, in the user process, we could've evicted whole cache, executed :code:`kernel
     auto end = __rdtsc();
     auto diff = end - start;
 
-In this manner, we could have determined if :code:`secret[index]` was 'A' simply by measuring the time difference (a small time indicating it was fetched into the cache by *speculative execution*). We could repeat the entire process for 'B', 'C', 'D', etc., and voilà!
+In this manner, we could have determined if :code:`secret[index]` was 'A' simply by measuring the time difference (a small time indicates it was fetched into the cache by *speculative execution*). We could repeat the entire process for 'B', 'C', 'D', etc., and voilà!
 
 This vulnerability, called `Spectre/Meltdown <https://meltdownattack.com>`_, has been described in more detail in `"Reading privilaged memory with a side-channel" <https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html>`_ by Jann Horn.
 
