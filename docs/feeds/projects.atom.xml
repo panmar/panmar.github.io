@@ -14,7 +14,7 @@
 &lt;dd&gt;&lt;ul class="first last"&gt;
 &lt;li&gt;inspired by a book &lt;a class="reference external" href="https://www.amazon.com/Elements-Computing-Systems-Building-Principles/dp/0262640686"&gt;The Elements of Computing Systems: Building a Modern Computer from First Principles&lt;/a&gt;.&lt;/li&gt;
 &lt;li&gt;start from NAND gate&lt;/li&gt;
-&lt;li&gt;end with a simple game running on the system (Pong, Snake or Tetris)&lt;/li&gt;
+&lt;li&gt;end with a Pong running on the system&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/dd&gt;
 &lt;/dl&gt;
