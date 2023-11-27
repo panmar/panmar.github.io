@@ -14,7 +14,7 @@ Some time ago, I started writing down ideas I could implement for fun. Here are 
 * write a `Hack computer <https://en.wikipedia.org/wiki/Hack_computer>`_ emulator
     * inspired by a book `The Elements of Computing Systems: Building a Modern Computer from First Principles <https://www.amazon.com/Elements-Computing-Systems-Building-Principles/dp/0262640686>`_.
     * start from NAND gate
-    * end with a simple game running on the system (Pong, Snake or Tetris)
+    * end with a Pong running on the system
 * solve a maze by pouring liquid
     * implement simple 2d liquid physics
     * optimize, optimize, optimize
