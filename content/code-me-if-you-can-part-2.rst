@@ -9,7 +9,7 @@ Code me if you can - part 2
     :alt: Winter forest
     :align: center
 
-The second portion of ideas for programs to implement for fun during cold, winter nights.
+The second portion of fun projects to implement during cold, winter nights.
 The first part can be found `here <{filename}/code-me-if-you-can.rst>`_.
 
 * CHIP-8 emulator
