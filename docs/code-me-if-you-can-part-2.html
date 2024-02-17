@@ -203,8 +203,6 @@
 
     <link href="https://marcinpanasiuk.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
         title="Marcin Panasiuk Full Atom Feed" />
-    <link href="https://marcinpanasiuk.com/feeds/projects.atom.xml" type="application/atom+xml" rel="alternate"
-        title="Marcin Panasiuk projects Atom Feed" />
 </head>
 
 <body>
@@ -212,9 +210,9 @@
         <a href="/">Marcin Panasiuk</a>
     </div>
     <nav>
-        <a  href="/">Posts</a>
+        <a  class="active"  href="/">Posts</a>
         |
-        <a  class="active"  href="/tags.html">Tags</a>
+        <a  href="/tags.html">Tags</a>
         |
         <a  href="/pages/projects.html">Projects</a>
         |
@@ -224,17 +222,89 @@
     </nav>
     <div id="content">
         <div id="innercontent">
-
-<h2>Tag: projects</h2>
-
+<h1>Code me if you can - part 2</h1>
 <header>
-    <a href="https://marcinpanasiuk.com/feeds/projects.atom.xml">projects atom feed</a>
+  Published on <time datetime="2024-02-17T12:15:00+01:00">2024-02-17</time>.
+    Tagged with
+      <a href="/tag/projects.html">projects</a>.
 </header>
 
-<ul>
-    <li><a href="/code-me-if-you-can-part-2.html">Code me if you can - part 2</a> (2024-02-17)</li>
-    <li><a href="/code-me-if-you-can.html">Code me if you can</a> (2023-11-19)</li>
+<img alt="Winter forest" class="align-center" src="/images/winter.jpg" />
+<p>The second portion of ideas for programs to implement for fun during cold, winter nights.
+The first part can be found <a class="reference external" href="https://marcinpanasiuk.com/code-me-if-you-can.html">here</a>.</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>CHIP-8 emulator</dt>
+<dd><ul class="first last">
+<li>really good place to start when embarking on the emulator journey</li>
+<li>only ~40 simple instructions to implement</li>
+<li>well documented <a class="reference external" href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM">design</a></li>
+<li>easily defined graphics (you can quickly visualize the progress!)</li>
+<li>lots of <a class="reference external" href="https://johnearnest.github.io/chip8Archive">games</a> to test on</li>
 </ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Micromouse agent</dt>
+<dd><ul class="first last">
+<li>inspired by <a class="reference external" href="https://en.wikipedia.org/wiki/Micromouse">micromouse competition</a></li>
+<li>write an agent to navigate a robot through a undiscovered maze</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Voxel engine</dt>
+<dd><ul class="first last">
+<li>inspired by Teardown</li>
+<li>use onlu cubes</li>
+<li>use only procedural textures</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Online ascii editor</dt>
+<dd><ul class="first last">
+<li>write an online ascii char editor similar to <a class="reference external" href="https://asciiflow.com">asciiflow</a>, but much more intuitive</li>
+<li>use webassembly</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Train a deep learning network how to play a 2d racing game</dt>
+<dd><ul class="first last">
+<li>generate random cyclick track</li>
+<li>implement simple 2d driving model</li>
+<li>implement simple 2d sensor model</li>
+<li>use deep learning to find quickest agent to complete the track</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Distributed data store</dt>
+<dd><ul class="first last">
+<li>implement <a class="reference external" href="https://en.wikipedia.org/wiki/Content-addressable_storage">CAS</a></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Create a custom programming language</dt>
+<dd><ul class="first last">
+<li>design a simple programming language</li>
+<li>implement a lexer</li>
+<li>implement a recursive-descent parser</li>
+<li>implement a LLVM backend</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+
 
             <hr class="before-footer">
             <footer>
