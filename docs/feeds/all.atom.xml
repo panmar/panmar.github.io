@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk</title><link href="https://marcinpanasiuk.com/" rel="alternate"></link><link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="self"></link><id>https://marcinpanasiuk.com/</id><updated>2024-02-17T12:15:00+01:00</updated><entry><title>Code me if you can - part 2</title><link href="https://marcinpanasiuk.com/code-me-if-you-can-part-2.html" rel="alternate"></link><published>2024-02-17T12:15:00+01:00</published><updated>2024-02-17T12:15:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2024-02-17:/code-me-if-you-can-part-2.html</id><summary type="html">&lt;img alt="Winter forest" class="align-center" src="/images/winter.jpg" /&gt;
-&lt;p&gt;The second portion of ideas for programs to implement for fun during cold, winter nights.
+&lt;p&gt;The second portion of fun projects to implement during cold, winter nights.
 The first part can be found &lt;a class="reference external" href="https://marcinpanasiuk.com/code-me-if-you-can.html"&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
@@ -9,8 +9,8 @@ The first part can be found &lt;a class="reference external" href="https://marci
 &lt;li&gt;really good place to start when embarking on the emulator journey&lt;/li&gt;
 &lt;li&gt;only ~40 simple instructions to implement&lt;/li&gt;
 &lt;li&gt;well documented &lt;a class="reference external" href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM"&gt;design&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;easily defined graphics (you can quickly …&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;img alt="Winter forest" class="align-center" src="/images/winter.jpg" /&gt;
-&lt;p&gt;The second portion of ideas for programs to implement for fun during cold, winter nights.
+&lt;li&gt;easily defined graphics (you can quickly visualize the progress …&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;img alt="Winter forest" class="align-center" src="/images/winter.jpg" /&gt;
+&lt;p&gt;The second portion of fun projects to implement during cold, winter nights.
 The first part can be found &lt;a class="reference external" href="https://marcinpanasiuk.com/code-me-if-you-can.html"&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;ul class="simple"&gt;
 &lt;li&gt;&lt;dl class="first docutils"&gt;
