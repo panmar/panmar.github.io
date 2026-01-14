@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% set active_page = "index" %}
+{% block title %}Main page{% endblock title %}
+{% block content %}
+
+<ul>
+{% for article in articles_page.object_list %}
+    <li><a href="{{ article.url }}">{{ article.title }}</a> ({{ article.date.date() }})</li>
+{% endfor %}
+</ul>
+
+{% endblock content %}

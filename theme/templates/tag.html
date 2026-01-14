@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% set active_page = "tags" %}
+{% block title %}Posts tagged with {{ tag }}{% endblock title %}
+{% block content %}
+
+<h2>Tag: {{tag}}</h2>
+
+{% if TAG_FEED_ATOM %}
+<header>
+    <a href="{{ FEED_DOMAIN }}/{{ TAG_FEED_ATOM.format(slug=tag.slug) }}">{{ tag }} atom feed</a>
+</header>
+{% endif %}
+
+<ul>
+{% for article in articles_page.object_list %}
+    <li><a href="/{{ article.url }}">{{ article.title }}</a> ({{ article.date.date() }})</li>
+{% endfor %}
+</ul>
+
+{% endblock content %}

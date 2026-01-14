@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{{ SITENAME }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style type="text/css">
+        html,
+        body,
+        p,
+        div,
+        img,
+        h1,
+        h2,
+        h3,
+        h4,
+        ol,
+        dl,
+        dd,
+        dt,
+        form,
+        table,
+        td,
+        tr {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        html {
+            background-color: #1d2021;
+            color: #828282;
+            /* font-family: 'Lato', sans-serif; */
+            /* font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif; */
+            /* font-family: "Open Sans", sans-serif; */
+            font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding-top: 1em;
+            padding-bottom: 1em;
+        }
+
+        p {
+            margin-bottom: 1em;
+        }
+
+        ul li p {
+            margin-bottom: 0;
+        }
+
+        div {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            font-size: 100%;
+        }
+
+        a {
+            color: #d65d0e;
+            ;
+        }
+
+        a:hover {
+            text-decoration: none;
+        }
+
+        div#logo {
+            width: 100%;
+            text-align: center;
+            font-size: 150%;
+        }
+
+        div#logo a {
+            text-decoration: none;
+            color: rgb(115, 116, 128);
+        }
+
+        div#content {
+            width: 100%;
+        }
+
+        div#content div#innercontent {
+            max-width: 80ch;
+            margin: auto;
+            padding-left: 5%;
+            padding-right: 5%;
+        }
+
+        header,
+        footer {
+            font-size: 75%;
+            text-align: center;
+            color: rgb(115, 116, 128);
+        }
+
+        header>a,
+        footer>a {
+            color: rgb(115, 116, 128);
+        }
+
+        hr.before-footer {
+            margin-top: 2em;
+            border-color: rgb(115, 116, 128);
+        }
+
+        header {
+            margin-bottom: 2em;
+        }
+
+        nav {
+            width: 100%;
+            text-align: center;
+            font-size: 105%;
+            padding-bottom: 2%;
+            color: rgb(115, 116, 128);
+        }
+
+        nav>a {
+            color: #427b58;
+            /* color: rgb(250, 150, 84); */
+            text-decoration: none;
+        }
+
+        a.active {
+            color: #689d6a;
+            /* color: rgb(255, 180, 84); */
+        }
+
+        pre {
+            overflow: auto;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+            padding-left: 1em;
+        }
+
+        ol {
+            margin-left: 2em;
+        }
+
+        img.align-center {
+            margin: 1em auto;
+            display: block;
+        }
+
+        img {
+            width: 80%;
+            height: auto;
+            border-radius: 5%;
+        }
+
+        @media only screen and (min-width: 800px) {
+            img {
+                width: 60%;
+            }
+        }
+
+        .literal-block {
+            background-color: rgb(25, 31, 38);
+            color: rgb(163, 144, 50);
+            font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+            font-size: 14px;
+            border-radius: 10px;
+        }
+
+        tt {
+            background-color: #191f26;
+            color: rgb(255, 180, 84);
+            font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+            font-size: 0.875em;
+            overflow-x: initial;
+            display: inline;
+            padding: 0.1em 0.3em;
+            border-radius: 6px;
+            line-height: 1.45em;
+            padding-top: 3pt;
+            padding-bottom: 3pt;
+        }
+
+        pre {
+            font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+            font-size: 14px;
+            border-radius: 10px;
+
+            display: block;
+            overflow-x: auto;
+        }
+    </style>
+
+    <link rel="stylesheet" href="/theme/highlight.css" type="text/css">
+
+    {% if FEED_ALL_ATOM %}
+    <link href="{{ FEED_DOMAIN }}/{{ FEED_ALL_ATOM }}" type="application/atom+xml" rel="alternate"
+        title="{{ SITENAME }} Full Atom Feed" />
+    {% endif %}
+    {% if TAG_FEED_ATOM and tag %}
+    <link href="{{ FEED_DOMAIN }}/{{ TAG_FEED_ATOM.format(slug=tag.slug) }}" type="application/atom+xml" rel="alternate"
+        title="{{ SITENAME }} {{ tag }} Atom Feed" />
+    {% endif %}
+</head>
+
+<body>
+    <div id="logo">
+        <a href="/">{{ SITENAME }}</a>
+    </div>
+    <nav>
+        <a {% if "index"==active_page %} class="active" {% endif %} href="/">Posts</a>
+        |
+        <a {% if "tags"==active_page %} class="active" {% endif %} href="/tags.html">Tags</a>
+        |
+        <a {% if "projects"==active_page %} class="active" {% endif %} href="/pages/projects.html">Projects</a>
+        |
+        <a {% if "contact"==active_page %} class="active" {% endif %} href="/pages/contact.html">Contact</a>
+        {% if FEED_ALL_ATOM %}
+        |
+        <a href="/{% if FEED_ALL_ATOM_URL %}{{ FEED_ALL_ATOM_URL }}{% else %}{{ FEED_ALL_ATOM }}{% endif %}">Atom</a>
+        {% endif %}
+    </nav>
+    <div id="content">
+        <div id="innercontent">
+            {% block content %}
+            {% endblock %}
+            <hr class="before-footer">
+            <footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/{{ COMMIT_ID }}">commit {{
+                    COMMIT_ID }}</a> on <nobr>{{ TIMESTAMP }}</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>
