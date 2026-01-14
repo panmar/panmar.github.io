@@ -13,7 +13,7 @@
 
 <ul>
 {% for article in articles_page.object_list %}
-    <li><a href="/{{ article.url }}">{{ article.title }}</a> ({{ article.date.date() }})</li>
+    <li>{{ article.date.date() }} <a href="/{{ article.url }}">{{ article.title }}</a></li>
 {% endfor %}
 </ul>
 

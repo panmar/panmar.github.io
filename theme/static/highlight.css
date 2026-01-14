@@ -3,7 +3,8 @@
 }
 
 .highlight .hll { background-color: rgb(41, 50, 61); padding-top: 2pt; padding-bottom: 2pt; padding-right: 6pt; }
-.highlight { background: rgb(25, 31, 38); color: #f8f8f2 }
+/* .highlight { background: rgb(25, 31, 38); color: #f8f8f2 } */
+.highlight { background: rgb(22, 27, 34); color: #f8f8f2 }
 .highlight .c { color: #575757 } /* Comment */
 .highlight .err { color: #d30c0c; background-color: #1e0010 } /* Error */
 .highlight .k { color: #ff7733 } /* Keyword */

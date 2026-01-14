@@ -40,11 +40,11 @@
         }
 
         html {
-            background-color: #1d2021;
-            color: #828282;
-            /* font-family: 'Lato', sans-serif; */
-            /* font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif; */
-            /* font-family: "Open Sans", sans-serif; */
+            /* background-color: hsl(210, 25%, 8%); */
+            background-color: hsl(213, 27%, 13%);
+
+            /* color: #c5c5c5; */
+            color: #acacac;
             font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
             line-height: 1.6;
             padding-top: 1em;
@@ -69,8 +69,13 @@
         }
 
         a {
-            color: #d65d0e;
-            ;
+            /* color: rgb(0, 150, 207); */
+            /* color: rgb(84, 130, 149); */
+            /* color: rgb(99, 151, 174); */
+            color: rgb(65, 136, 166);
+
+
+            text-decoration: none;
         }
 
         a:hover {
@@ -86,6 +91,8 @@
         div#logo a {
             text-decoration: none;
             color: rgb(115, 116, 128);
+            /* color: rgb(64, 94, 106);
+            color: rgb(65, 138, 169); */
         }
 
         div#content {
@@ -108,7 +115,8 @@
 
         header>a,
         footer>a {
-            color: rgb(115, 116, 128);
+            /* color: rgb(115, 116, 128); */
+            color: rgb(175, 175, 175);
         }
 
         hr.before-footer {
@@ -129,13 +137,14 @@
         }
 
         nav>a {
-            color: #427b58;
+            color: rgb(115, 116, 128);
             /* color: rgb(250, 150, 84); */
             text-decoration: none;
         }
 
         a.active {
-            color: #689d6a;
+            color: #c5c5c5;
+            /* color: #00aaff; */
             /* color: rgb(255, 180, 84); */
         }
 
@@ -169,7 +178,7 @@
 
         .literal-block {
             background-color: rgb(25, 31, 38);
-            color: rgb(163, 144, 50);
+            color: rgb(230, 226, 207);
             font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
             font-size: 14px;
             border-radius: 10px;
@@ -197,6 +206,17 @@
             display: block;
             overflow-x: auto;
         }
+
+        .circle-image {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4pt solid #1e2730;
+            display: block;
+            margin: 0 auto;
+            opacity: 0.7;
+        }
     </style>
 
     <link rel="stylesheet" href="/theme/highlight.css" type="text/css">
@@ -222,7 +242,8 @@
         |
         <a {% if "projects"==active_page %} class="active" {% endif %} href="/pages/projects.html">Projects</a>
         |
-        <a {% if "contact"==active_page %} class="active" {% endif %} href="/pages/contact.html">Contact</a>
+        <a {% if "about"==active_page %} class="active" {% endif %} href="/pages/about.html">About</a>
+        |
         {% if FEED_ALL_ATOM %}
         |
         <a href="/{% if FEED_ALL_ATOM_URL %}{{ FEED_ALL_ATOM_URL }}{% else %}{{ FEED_ALL_ATOM }}{% endif %}">Atom</a>
