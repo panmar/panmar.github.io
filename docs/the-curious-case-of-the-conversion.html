@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>The curious case of the conversion</h1>
+<header>
+  Published on <time datetime="2025-07-20T19:03:00+02:00">2025-07-20</time>.
+    Tagged with
+      <a href="/tag/c.html">C++</a>.
+</header>
+<img alt="mechanical trojan horse" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/trojan.png" width="471"/>
+<p>A few days ago a friend sent me this riddle:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">float</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"f"</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">int</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"i"</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">(</span><span class="n">foo</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="p">...);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bar</span><span class="p">(</span><span class="mf">1.0f</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>What will happen?</p>
+<p>Let's walk through it carefully.</p>
+<p><code>bar</code> is a variadic function template taking variable number of parameters. When template parameters are deduced in this context, <code>T&amp;&amp;</code> is a forwarding reference (it can catch both <em>lvalue</em> and <em>rvalue</em> reference). However, inside the function body each parameter <code>v</code> is a named variable and therefore an <em>lvalue</em>, even if it was initialized from a <em>rvalue</em>.</p>
+<p><code>(foo(v), ...)</code> is a left-to-right fold-expression over the comma operator. It expands the pack and calls <code>foo</code> once for each <code>v</code>, evaluating the calls left-to-right. So inside <code>bar</code> we effectively do:</p>
+<div class="highlight"><pre><span></span><span class="n">foo</span><span class="p">(</span><span class="n">v1</span><span class="p">);</span><span class="w">    </span><span class="c1">// where v1 = 1.f</span>
+<span class="n">foo</span><span class="p">(</span><span class="n">v2</span><span class="p">);</span><span class="w">    </span><span class="c1">// where v2 = 2</span>
+</pre></div>
+<p>Wait, but there are no such functions defined! All we have are two functions <code>foo</code> taking <em>rvalue</em> references.</p>
+<p>At this point I thought it could be a compiler error. There is no function <code>foo</code> taking <em>lvalue</em> reference. The only way the compiler could use defined functions is if it somehow created temporary variable inside the function calls...</p>
+<p>And then it hit me. What about implicit conversions?</p>
+<p>If the compiler converted <code>1.f</code> into <code>1</code> (creating a temporary), then it would match the <code>foo(int&amp;&amp;)</code> signature and it would print <code>"i"</code>. Then the compiler could repeat the same procedure for <code>2</code>, converting it to <em>float</em>, and we would get <code>"f"</code>. But would the compiler do it?</p>
+<p>I was 50/50 sure. The compilation error would be more obvious choice, but the temporary conversion would make the riddle unexpectedly tricky.</p>
+<p>It turned out that, indeed, the compiler does the conversions. The code compiles and prints:</p>
+<div class="highlight"><pre><span></span><span class="go">if</span>
+</pre></div>
+<div class="section" id="compilation-error">
+<h2>Compilation error</h2>
+<p>So when would we get compilation error?</p>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="kt">int</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"i"</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">(</span><span class="n">foo</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="p">...);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bar</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>If there were only one function <code>foo</code> matching parameter passed to <code>bar</code>.</p>
+<div class="highlight"><pre><span></span><span class="go">g++ main.cc -std=c++17</span>
+<span class="go">main.cc:7:6: error: no matching function for call to 'foo'</span>
+<span class="go">    7 |     (foo(v), ...);</span>
+<span class="go">    |      ^~~</span>
+<span class="go">main.cc:11:5: note: in instantiation of function template specialization 'bar&lt;int&gt;' requested here</span>
+<span class="go">11 |     bar(1);</span>
+<span class="go">    |     ^</span>
+<span class="go">main.cc:3:6: note: candidate function not viable: expects an rvalue for 1st argument</span>
+<span class="go">    3 | void foo(int&amp;&amp;) { std::cout &lt;&lt; "i"; }</span>
+<span class="go">    |      ^   ~~~~~</span>
+<span class="go">1 error generated.</span>
+</pre></div>
+</div>
+<div class="section" id="fixed-version">
+<h2>Fixed version</h2>
+<p>How to fix the template? Use <a class="reference external" href="https://en.cppreference.com/w/cpp/utility/forward.html">perfect forwarding</a>:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">(</span><span class="n">foo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span><span class="w"> </span><span class="p">...);</span>
+<span class="p">}</span>
+</pre></div>
+<p>Now <code>v</code> keeps its value category, overload resolution does what you expect, and the output is:</p>
+<div class="highlight"><pre><span></span><span class="go">fi</span>
+</pre></div>
+</div>
+<div class="section" id="what-std-forward-actually-does">
+<h2>What std::forward actually does</h2>
+<p>This is basically what it looks like (simplified):</p>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">forward</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">remove_reference_t</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&amp;&amp;&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>The entire trick is this cast:</p>
+<div class="highlight"><pre><span></span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&amp;&amp;&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>And how can you not love C++, ehh...</p>
+</div>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

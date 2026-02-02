@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>One arena to rule them all</h1>
+<header>
+  Published on <time datetime="2024-09-26T19:43:00+02:00">2024-09-26</time>.
+    Tagged with
+      <a href="/tag/c.html">C++</a>,      <a href="/tag/data-structure.html">data structure</a>,      <a href="/tag/algorithm.html">algorithm</a>.
+</header>
+<img alt="the one ring with C++ code on it" class="image-process-article-image align-center" height="348" src="images/derivatives/article-image/one_ring.png" width="480"/>
+<p>Memory management can be painful. We can use RAII and smart pointers, but sometimes it would be nice to have a garbage collector and not to worry about it at all. Especially if you needn't pay the price of periodic stalls. What if there were a way to make memory management much simpler?</p>
+<div class="section" id="enter-the-arena">
+<h2>Enter the Arena</h2>
+<p>An arena allocator owns one big chunk of memory and hands out parts of it linearly. An allocation is just the pointer arithmetic. There is no per-allocation free. When you are done with the arena, you reset it and all allocations disappear at once.</p>
+<p>This pattern shows up everywhere: parsers, compilers, game frames, job systems, temporary scene data. If your objects naturally die together, an arena is often the simplest and fastest option.</p>
+<p>So let's build one.</p>
+</div>
+<div class="section" id="a-simple-arena">
+<h2>A simple arena</h2>
+<p>The arena itself only needs to know three things: where the memory starts, how big it is, and how much of it is already used.</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">ArenaAllocator</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n"><span class="typename">u8</span></span><span class="o">*</span><span class="w">     </span><span class="n">base</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">offset</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">arena_init</span><span class="p">(</span><span class="n">ArenaAllocator</span><span class="o">*</span><span class="w"> </span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">memory</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">base</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n"><span class="typename">u8</span></span><span class="o">*</span><span class="p">)</span><span class="n">memory</span><span class="p">;</span>
+<span class="w">    </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>The core of the allocator is the allocation function itself:</p>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">arena_alloc</span><span class="p">(</span><span class="n">ArenaAllocator</span><span class="o">*</span><span class="w"> </span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uintptr_t</span><span class="p">)(</span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">base</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">aligned</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">align_address_forward</span><span class="p">(</span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="n">alignment</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">aligned</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">current</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">padding</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">padding</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">aligned</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>This does three things. It aligns the current pointer, checks bounds, and bumps the offset. There is no metadata and no bookkeeping beyond that.</p>
+<p>This helper rounds an address up to the next aligned boundary. Alignment must be power of 2 (usually 4 or 16)</p>
+<div class="highlight"><pre><span></span><span class="kt">uintptr_t</span><span class="w"> </span><span class="nf">align_address_forward</span><span class="p">(</span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alignment</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">address</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mask</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">mask</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>The function <code>arena_alloc</code> gives you raw memory. For convenience, let's wrap it with a typed helper:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">T</span><span class="o">*</span><span class="w"> </span><span class="n">arena_push</span><span class="p">(</span><span class="n">ArenaAllocator</span><span class="o">*</span><span class="w"> </span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n"><span class="typename">u32</span></span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">arena_alloc</span><span class="p">(</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="k">alignof</span><span class="p">(</span><span class="n">T</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+<p>This works for trivial types and POD-like data. It does not call constructors or destructors. If you need that, you must explicitly use <a class="reference external" href="https://en.cppreference.com/w/cpp/language/new.html#Placement_new">placement new</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">MyType</span><span class="o">*</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">(</span><span class="n">arena_push</span><span class="o">&lt;</span><span class="n">MyType</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocator</span><span class="p">))</span><span class="w"> </span><span class="n">MyType</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span><span class="w"> </span><span class="n">arg2</span><span class="p">);</span>
+</pre></div>
+<p>Destruction is your responsibility, or you accept that destructors will never run and design your types accordingly. That trade-off is the whole point of an arena.</p>
+<p>Freeing everything is trivial:</p>
+<div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">arena_reset</span><span class="p">(</span><span class="n">ArenaAllocator</span><span class="o">*</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">allocator</span><span class="o">-&gt;</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>After this call, all previously returned pointers are invalid. The memory can be reused immediately.</p>
+<p>Here is a complete example using <a class="reference external" href="https://linux.die.net/man/2/mmap">mmap</a> to get backing storage:</p>
+<div class="highlight"><pre><span></span><span class="n"><span class="typename">u8</span></span><span class="o">*</span><span class="w"> </span><span class="n">memory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n"><span class="typename">u8</span></span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">mmap</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="n">PROT_READ</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PROT_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">MAP_ANONYMOUS</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">MAP_PRIVATE</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="n">ArenaAllocator</span><span class="w"> </span><span class="n">allocator</span><span class="p">;</span>
+<span class="n">arena_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n">memory</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<span class="c1">//...</span>
+<span class="n">MyData</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arena_push</span><span class="o">&lt;</span><span class="n">MyData</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocator</span><span class="p">);</span>
+<span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">arr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arena_push</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+<span class="c1">//...</span>
+<span class="n">arena_reset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocator</span><span class="p">);</span>
+<span class="n">munmap</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>An arena allocator lets you reason about lifetimes as a whole. When lifetimes are grouped together — per frame, per request, per parse — an arena allocator makes this reality explicit instead of pretending every object is independent.</p>
+<p>Used in the right place, it often leads to simpler code, fewer ownership concerns, and performance that is easy to reason about. It is not magic, and it does not pretend to be. If your data already lives and dies together, it is worth stopping and asking: could this be an arena?</p>
+<p>It is just another tool in the shed — one that deserves to be taken off the wall more often.</p>
+</div>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

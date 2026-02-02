@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Crazy Little Thing Called Float</h1>
+<header>
+  Published on <time datetime="2021-11-20T11:28:00+01:00">2021-11-20</time>.
+    Tagged with
+      <a href="/tag/ieee-754.html">ieee-754</a>.
+</header>
+<img alt="ladder with missing steps" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/ladder.jpg" width="449"/>
+<p>What's wrong with this C++ code?</p>
+<div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">16777217.f</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">16777218.f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">f</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1.f</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>It will run forever.</p>
+<p>It's pretty common knowledge that the best way to go broke is to use <a class="reference external" href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format">floats</a> for storing money. Indeed, not all rational numbers can be represented as floating-point numbers:</p>
+<div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">"%1.10f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="mf">0.7f</span><span class="p">);</span><span class="w"> </span><span class="c1">// 0.6999999881</span>
+</pre></div>
+<p>Floats use a sign, exponent, and significand (mantissa) to represent real numbers. These gaps exist because floating-point numbers have <strong>fixed precision</strong> but <strong>variable scale</strong>:</p>
+<div class="math">
+\begin{equation*}
+value = (-1)^{sign} \cdot 2^{exponent - 127} \cdot (1 + fraction)
+\end{equation*}
+</div>
+<p>A 32-bit float has:</p>
+<ul class="simple">
+<li>1 bit for the sign</li>
+<li>8 bits for the exponent</li>
+<li>23 bits for the significand (with an implicit leading bit, giving 24 bits of precision)</li>
+</ul>
+<p>Because the fraction has only 23 explicit bits, it can only store 24-bit precision at any given scale. This means that numbers are spaced uniformly within a power of two, but the step size doubles every time the exponent increases. Therefore, floating-point numbers not only have gaps, but the distribution of these gaps is also not uniform. The farther away from 0.0, the larger empty spaces we can expect.</p>
+<p>Let's look at the numbers from the first code sample:</p>
+<div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">"%20.16f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="mf">16777217.f</span><span class="p">);</span><span class="w">    </span><span class="c1">// 16777216.0000000000000000</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%20.16f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="mf">16777218.f</span><span class="p">);</span><span class="w">    </span><span class="c1">// 16777218.0000000000000000</span>
+</pre></div>
+<p>Between <strong>16,777,216</strong> and <strong>16,777,218</strong>, there is a pretty large gap.
+If you kept tracking your dollars as floats around 16 million, there would be gaps as big as <strong>$2</strong>. At around <strong>140,000,000</strong> we can find gaps of size <strong>$16</strong>. At around <strong>1,000,000,000</strong> of size <strong>$64</strong>.</p>
+<p>The gap size depends on the exponent. Every time the number doubles, the gap size doubles:</p>
+<ul class="simple">
+<li>for numbers in the range <strong>[1, 2)</strong>, the gap is 2<sup>-23</sup> = 0.00000011920928955078125</li>
+<li>at <strong>8,388,608</strong>, the gap is <strong>1</strong></li>
+<li>at <strong>16,777,216</strong>, the gap is <strong>2</strong></li>
+<li>at <strong>134,217,728</strong>, the gap is <strong>16</strong></li>
+<li>at <strong>1,073,741,824</strong>, the gap is <strong>64</strong>.</li>
+</ul>
+<p>The pattern follows:</p>
+<div class="math">
+\begin{equation*}
+gap = 2^{exponent - 23}
+\end{equation*}
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%"/>
+<col width="19%"/>
+<col width="32%"/>
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Value Range</th>
+<th class="head">Exponent e</th>
+<th class="head">Gap size</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>[1, 2)</td>
+<td>0</td>
+<td>2<sup>-23</sup></td>
+</tr>
+<tr><td>[2, 4)</td>
+<td>1</td>
+<td>2<sup>-22</sup></td>
+</tr>
+<tr><td>[4, 8)</td>
+<td>2</td>
+<td>2<sup>-21</sup></td>
+</tr>
+<tr><td>[8,388,608, 16,777,216)</td>
+<td>23</td>
+<td>1</td>
+</tr>
+<tr><td>[16,777,216, 33,554,432)</td>
+<td>24</td>
+<td>2</td>
+</tr>
+<tr><td>[134,217,728, 268,435,456)</td>
+<td>27</td>
+<td>16</td>
+</tr>
+<tr><td>[1,073,741,824, 2,147,483,648)</td>
+<td>30</td>
+<td>64</td>
+</tr>
+</tbody>
+</table>
+<p>You can play with floating-point representation using this nice <a class="reference external" href="https://float.exposed/0x4b800001">tool</a>.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

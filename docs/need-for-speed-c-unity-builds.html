@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Need for speed: C++ unity builds</h1>
+<header>
+  Published on <time datetime="2022-05-16T19:51:00+02:00">2022-05-16</time>.
+    Tagged with
+      <a href="/tag/c.html">c++</a>.
+</header>
+<img alt="mechanical snail" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/snail.jpg" width="463"/>
+<p>As I type these words, I'm staring at the LLVM compilation screen. It has been running for an hour. What a waste of energy. I really hate long compilation times.</p>
+<p>That's why I started using <a class="reference external" href="https://en.wikipedia.org/wiki/Unity_build">unity builds</a>. A unity build consolidates all code into a single translation unit:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_1.cc"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_2.cc"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_3.cc"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_4.cc"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_5.cc"</span>
+</pre></div>
+<p>How much time can I save by organizing code in this manner? I wrote <a class="reference external" href="https://github.com/panmar/unity-builds-cmp/">a simple test</a> where I generated 10,000 files:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;set&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;functional&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;random&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTestClazzX</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">func</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Hello from class MyTestClazzX: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+<p>Then I performed different compilations using normal and unity builds. Here are the results:</p>
+<div class="highlight"><pre><span></span>➜<span class="w">  </span>unity-builds-cmp<span class="w"> </span>git:<span class="o">(</span>main<span class="o">)</span><span class="w"> </span>✗<span class="w"> </span>python<span class="w"> </span>test_unity_build.py<span class="w"> </span><span class="m">10000</span>
+Cleaning<span class="w"> </span>src/<span class="w"> </span>directory
+Generating<span class="w"> </span><span class="m">10000</span><span class="w"> </span>files...
+Compiling<span class="w"> </span>unity<span class="w"> </span>build...<span class="w"> </span><span class="o">[</span>g++<span class="o">]</span>
+<span class="w">    </span>DONE.<span class="w"> </span>The<span class="w"> </span>process<span class="w"> </span>took<span class="w"> </span><span class="m">20</span>.84<span class="w"> </span>seconds
+Compiling<span class="w"> </span>unity<span class="w"> </span>build<span class="w"> </span>using...<span class="w"> </span><span class="o">[</span>clang++<span class="o">]</span>
+<span class="w">    </span>DONE.<span class="w"> </span>The<span class="w"> </span>process<span class="w"> </span>took<span class="w"> </span><span class="m">10</span>.60<span class="w"> </span>seconds
+Compiling<span class="w"> </span>normal<span class="w"> </span>build<span class="w"> </span>using<span class="w"> </span><span class="m">12</span><span class="w"> </span>cores...<span class="w"> </span><span class="o">[</span>clang++<span class="o">]</span>
+<span class="w">    </span>DONE.<span class="w"> </span>The<span class="w"> </span>process<span class="w"> </span>took<span class="w"> </span><span class="m">916</span>.86<span class="w"> </span>seconds
+</pre></div>
+<p>The single-threaded unity build was about 90 times faster than the normal one, even though the normal build was utilizing multiple cores. Of course, the exact results are artificial and depend very much on the files you are compiling, but the sheer difference is astonishing.</p>
+<p>I use unity builds for my private projects, which usually do not have more than 100 files. So, here are the results for 100:</p>
+<div class="highlight"><pre><span></span>➜<span class="w">  </span>unity-builds-cmp<span class="w"> </span>git:<span class="o">(</span>main<span class="o">)</span><span class="w"> </span>✗<span class="w"> </span>python<span class="w"> </span>test_unity_build.py<span class="w"> </span><span class="m">100</span>
+Cleaning<span class="w"> </span>src/<span class="w"> </span>directory
+Generating<span class="w"> </span><span class="m">100</span><span class="w"> </span>files...
+Compiling<span class="w"> </span>unity<span class="w"> </span>build...<span class="w"> </span><span class="o">[</span>g++<span class="o">]</span>
+<span class="w">    </span>DONE.<span class="w"> </span>The<span class="w"> </span>process<span class="w"> </span>took<span class="w"> </span><span class="m">0</span>.64<span class="w"> </span>seconds
+Compiling<span class="w"> </span>unity<span class="w"> </span>build<span class="w"> </span>using...<span class="w"> </span><span class="o">[</span>clang++<span class="o">]</span>
+<span class="w">    </span>DONE.<span class="w"> </span>The<span class="w"> </span>process<span class="w"> </span>took<span class="w"> </span><span class="m">0</span>.58<span class="w"> </span>seconds
+Compiling<span class="w"> </span>normal<span class="w"> </span>build<span class="w"> </span>using<span class="w"> </span><span class="m">12</span><span class="w"> </span>cores...<span class="w"> </span><span class="o">[</span>clang++<span class="o">]</span>
+<span class="w">    </span>DONE.<span class="w"> </span>The<span class="w"> </span>process<span class="w"> </span>took<span class="w"> </span><span class="m">7</span>.48<span class="w"> </span>seconds
+</pre></div>
+<p>About 13 times faster. This is noticeable and definitely worthwhile for me. It compiles under one second without using precompiled headers, incremental builds or <a class="reference external" href="https://en.cppreference.com/w/cpp/language/pimpl">pimpl</a>. A full rebuild. Each time. In under one second.</p>
+<p>So, what about cons? Certainly, putting everything into a single translation unit can result in a big mess:</p>
+<ul>
+<li><p class="first">Static clash</p>
+<blockquote>
+<p>Symbols with identical names and internal linkage can result in lots of <em>redefinition</em> errors.</p>
+</blockquote>
+</li>
+<li><p class="first">Macro mayhem</p>
+<blockquote>
+<p>Preprocessor directives now operate in a global battlefield. That innocuous <code>#define MAX_SIZE 1024</code> in a source header? It might silently override a same-named constant in an unrelated subsystem.</p>
+</blockquote>
+</li>
+<li><p class="first">No unnamed namespaces</p>
+<blockquote>
+<p>Technically, you can use <a class="reference external" href="https://en.cppreference.com/w/cpp/language/namespace#Unnamed_namespaces">unnamed namespace</a>, but everything will be put inside single one. You want to use a helper function that should only be visible in this small module? Too bad. It will be visible globally.</p>
+</blockquote>
+</li>
+<li><p class="first">Ambiguous overloads</p>
+<blockquote>
+<p>The C++ <a class="reference external" href="https://en.cppreference.com/w/cpp/language/overload_resolution">overload resolution</a> rules are quite complex and when everything is in one translation unit, it can lead to some surprises, e.g.:</p>
+<div class="highlight"><pre><span></span><span class="c1">// file_1.cc</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Foo</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">var</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">Foo</span><span class="w"> </span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="c1">// file_2.cc</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Bar</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Bar</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">var</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">Bar</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="c1">// main.cc</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_1.cc"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"file_2.cc"</span>
+
+<span class="n">func</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+</pre></div>
+<p>Results in <code>error: call to 'func' is ambiguous</code>.</p>
+</blockquote>
+</li>
+<li><p class="first">External dependencies</p>
+<blockquote>
+<p>Due to <em>leaky</em> C++ nature, you can design all of your code in <em>unity-friendly</em> manner and it might still explode when you include some <em>external library</em>.</p>
+</blockquote>
+</li>
+</ul>
+<p>How do I deal with it?</p>
+<p>Well, I am using it for my own projects written from scratch. It is easier to write code for <em>unity builds</em> from the beginning than to transform big, complex codebase into it. My ruleset:</p>
+<ul class="simple">
+<li>I organize my codebase into modules with their own namespaces and try not to break dependency rules</li>
+<li>I rarely use macros. And if I do, I prefix them with a module-specific identifier.</li>
+<li>As far as external libraries are concerned, I usually put them into separate DLLs and hope headers are written properly. Alternatively, for a small project, you might try including it directly. You never know.</li>
+</ul>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

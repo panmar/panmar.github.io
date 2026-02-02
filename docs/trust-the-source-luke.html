@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Trust the Source, Luke</h1>
+<header>
+  Published on <time datetime="2022-08-01T20:30:00+02:00">2022-08-01</time>.
+    Tagged with
+      <a href="/tag/c.html">c++</a>,      <a href="/tag/security.html">security</a>.
+</header>
+<img alt="Yoda" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/yoda.jpg" width="480"/>
+<p>It is a common belief that the only documentation a programmer should rely on is the source code. Some experienced engineers argue that one should only trust the disassembly. However, I'd like to present a case where neither of these beliefs holds true.</p>
+<p>Consider this kernel code:</p>
+<div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">kernel_func</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">public_bounds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">^</span><span class="w"> </span><span class="n">detector</span><span class="p">[</span><span class="n">secret</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SOME_BIG_NUMBER</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="nf">void</span><span class="w"> </span><span class="nv">kernel_func</span><span class="p">(</span><span class="nv">int</span><span class="p">)</span><span class="w"> </span><span class="nv">PROC</span>
+<span class="w">    </span><span class="nf">push</span><span class="w">    </span><span class="nb">ebp</span>
+<span class="w">    </span><span class="nf">mov</span><span class="w">     </span><span class="nb">ebp</span><span class="p">,</span><span class="w"> </span><span class="nb">esp</span>
+<span class="w">    </span><span class="nf">mov</span><span class="w">     </span><span class="nb">eax</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">_index$</span><span class="p">[</span><span class="nb">ebp</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">cmp</span><span class="w">     </span><span class="nb">eax</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="nv">public_bounds</span>
+<span class="w">    </span><span class="nf">jge</span><span class="w">     </span><span class="nv">SHORT</span><span class="w"> </span><span class="kc">$</span><span class="nv">LN1@kernel_fun</span>
+<span class="w">    </span><span class="nf">mov</span><span class="w">     </span><span class="nb">ecx</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">_index$</span><span class="p">[</span><span class="nb">ebp</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">mov</span><span class="w">     </span><span class="nb">edx</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nv">secret</span><span class="p">[</span><span class="nb">ecx</span><span class="o">*</span><span class="mi">4</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">imul</span><span class="w">    </span><span class="nb">edx</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="nv">SOME_BIG_NUMBER</span>
+<span class="w">    </span><span class="nf">mov</span><span class="w">     </span><span class="nb">eax</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="nv">x</span>
+<span class="w">    </span><span class="nf">xor</span><span class="w">     </span><span class="nb">eax</span><span class="p">,</span><span class="w"> </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nv">detector</span><span class="p">[</span><span class="nb">edx</span><span class="o">*</span><span class="mi">4</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">mov</span><span class="w">     </span><span class="kt">DWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="nv">int</span><span class="w"> </span><span class="nv">x</span><span class="p">,</span><span class="w"> </span><span class="nb">eax</span>
+<span class="nl">$LN1@kernel_fun:</span>
+<span class="w">    </span><span class="nf">pop</span><span class="w">     </span><span class="nb">ebp</span>
+<span class="w">    </span><span class="nf">ret</span><span class="w">     </span><span class="mi">0</span>
+</pre></div>
+<p>Could we obtain the value of the <code>secret[index]</code> for indices outside of <code>public_bounds</code>, if we only have access to <code>index</code>, <code>detector[]</code> and the value of <code>SOME_BIG_NUMBER</code>? According to the source code and disassembly we should not, right?</p>
+<p>Right?</p>
+<p>Welcome to hardware land! The CPU hates idleness. If there is a cache miss in the branch condition <code>index &lt; public_bounds</code>, which would make CPU stall for a while, CPU can <a class="reference external" href="https://en.wikipedia.org/wiki/Speculative_execution">speculatively execute</a> <code>x = x ^ detector[secret[index] * ...]</code>. If the condition, fetched from memory, turns out to be false, the CPU simply doesn't commit the speculative result. So, what's the issue? The problem arises because the CPU can fetch <code>detector[secret[index] * ...]</code> into the cache, even if the branch condition is <strong>not</strong> met!</p>
+<p>In the user process, we could have evicted the entire cache, executed <code>kernel_func</code> making CPU do branch prediction (by running it with a valid <code>index</code> a few times beforehand), and then executed:</p>
+<div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__rdtsc</span><span class="p">();</span><span class="w">  </span><span class="c1">// high-precision timer</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detector</span><span class="p">[</span><span class="sc">'A'</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SOME_BIG_NUMBER</span><span class="p">];</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__rdtsc</span><span class="p">();</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">;</span>
+</pre></div>
+<p>In this manner, we could have determined if <code>secret[index]</code> was 'A' simply by measuring the time difference (a small time indicates it was fetched into the cache by <em>speculative execution</em>). We could repeat the entire process for 'B', 'C', 'D', etc., and voilà!</p>
+<p>This vulnerability, called <a class="reference external" href="https://meltdownattack.com">Spectre</a>, has been described in more detail in <a class="reference external" href="https://googleprojectzero.blogspot.com/2018/01/reading-privileged-memory-with-side.html">"Reading privileged memory with a side-channel"</a> by Jann Horn.</p>
+<p>Be careful where you place your trust.</p>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

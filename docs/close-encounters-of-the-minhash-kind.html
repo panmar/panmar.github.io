@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Close Encounters of the MinHash Kind</h1>
+<header>
+  Published on <time datetime="2023-07-14T21:33:00+02:00">2023-07-14</time>.
+    Tagged with
+      <a href="/tag/algorithm.html">algorithm</a>.
+</header>
+<img alt="Two cats that look identical" class="image-process-article-image align-center" height="371" src="images/derivatives/article-image/cat_twins.jpeg" width="480"/>
+<p>Imagine you're building a meme recommendation system. Users upload memes, and your task is to find all similar ones quickly. A meme is described by a set of features, e.g., ["<em>sun</em>", "<em>dog</em>", "<em>car</em>"]. Memes are considered similar if they share most of their features:</p>
+<div class="highlight"><pre><span></span><span class="n">meme_1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"floor"</span><span class="p">,</span> <span class="s2">"sun"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">,</span> <span class="s2">"car"</span><span class="p">]</span>     <span class="c1"># similar to meme_2</span>
+<span class="n">meme_2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sun"</span><span class="p">,</span> <span class="s2">"ball"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">,</span> <span class="s2">"car"</span><span class="p">]</span>      <span class="c1"># similar to meme_1</span>
+
+<span class="n">meme_3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"tree"</span><span class="p">,</span> <span class="s2">"grass"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">]</span>           <span class="c1"># different from both</span>
+</pre></div>
+<p>How would you find all similar memes?</p>
+<p>A straightforward approach would be to directly compare every meme with every other meme. However, for N memes, this results in O(N²) comparisons — clearly not efficient. We can do better!</p>
+<div class="section" id="the-intuition">
+<h2>The Intuition</h2>
+<p>Let's think about it. If two memes share most of their features, then picking a random feature from the combined set has a high chance of being present in both. If we repeat this process multiple times, similar memes will match more frequently than different ones.</p>
+<p>This gives us the core insight, but random sampling has a practical drawback: we'd need to coordinate and store our random choices to ensure consistency across comparisons. What if we could achieve the same effect deterministically?</p>
+</div>
+<div class="section" id="from-random-sampling-to-hashing">
+<h2>From Random Sampling to Hashing</h2>
+<p>What if, instead of picking features at random, we defined a consistent rule for selecting <em>one</em> feature from each meme? Here's the trick: use a hash function.</p>
+<p>A hash function maps each feature to a number, giving us an implicit ordering. For each meme, we hash all its features and keep only the <strong>minimum</strong> hash value. This is called the <em>min-hash</em> of that meme.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">min_hash</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">hash_func</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">hash_func</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">features</span><span class="p">)</span>
+</pre></div>
+<p>Why does this help? If two memes are similar (they share most of their features), they're likely to agree on which feature has the minimum hash — because they're mostly hashing the same set!</p>
+<p>More precisely, the probability that two memes have the same min-hash equals their <a class="reference external" href="https://en.wikipedia.org/wiki/Jaccard_index">Jaccard similarity</a> (the size of their intersection divided by the size of their union).</p>
+</div>
+<div class="section" id="a-concrete-example">
+<h2>A Concrete Example</h2>
+<p>Let's see this in action. Suppose our hash function produces these values:</p>
+<div class="highlight"><pre><span></span><span class="c1"># hash("sun")=3, hash("dog")=7, hash("car")=12,</span>
+<span class="c1"># hash("floor")=25, hash("ball")=9, hash("tree")=1, hash("grass")=15</span>
+
+<span class="n">meme_1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"floor"</span><span class="p">,</span> <span class="s2">"sun"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">,</span> <span class="s2">"car"</span><span class="p">]</span>  <span class="c1"># min_hash = 3  (from "sun")</span>
+<span class="n">meme_2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"sun"</span><span class="p">,</span> <span class="s2">"ball"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">,</span> <span class="s2">"car"</span><span class="p">]</span>   <span class="c1"># min_hash = 3  (from "sun") ✓ match!</span>
+<span class="n">meme_3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"tree"</span><span class="p">,</span> <span class="s2">"grass"</span><span class="p">,</span> <span class="s2">"dog"</span><span class="p">]</span>        <span class="c1"># min_hash = 1  (from "tree")</span>
+</pre></div>
+<p>With this particular hash function, <tt class="docutils literal">meme_1</tt> and <tt class="docutils literal">meme_2</tt> have the same min-hash, while <tt class="docutils literal">meme_3</tt> differs. But one hash function isn't enough — we might get unlucky. The solution? Use many hash functions.</p>
+</div>
+<div class="section" id="building-a-signature">
+<h2>Building a Signature</h2>
+<p>If we repeat this process using <strong>k</strong> different hash functions, we get a <em>signature</em> for each meme: a vector of <strong>k</strong> min-hash values.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_signature</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">hash_functions</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">min_hash</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hash_functions</span><span class="p">]</span>
+
+<span class="c1"># Using 100 hash functions, each meme gets a signature of 100 integers</span>
+<span class="n">sig_1</span> <span class="o">=</span> <span class="n">compute_signature</span><span class="p">(</span><span class="n">meme_1</span><span class="p">,</span> <span class="n">hash_functions</span><span class="p">)</span>  <span class="c1"># [3, 42, 7, 91, ...]</span>
+<span class="n">sig_2</span> <span class="o">=</span> <span class="n">compute_signature</span><span class="p">(</span><span class="n">meme_2</span><span class="p">,</span> <span class="n">hash_functions</span><span class="p">)</span>  <span class="c1"># [3, 42, 7, 18, ...]</span>
+<span class="n">sig_3</span> <span class="o">=</span> <span class="n">compute_signature</span><span class="p">(</span><span class="n">meme_3</span><span class="p">,</span> <span class="n">hash_functions</span><span class="p">)</span>  <span class="c1"># [1, 55, 2, 36, ...]</span>
+</pre></div>
+<p>The fraction of positions where two signatures match estimates their Jaccard similarity. In the example above, <tt class="docutils literal">sig_1</tt> and <tt class="docutils literal">sig_2</tt> might match in 75 out of 100 positions, while <tt class="docutils literal">sig_1</tt> and <tt class="docutils literal">sig_3</tt> might match in only 10.</p>
+<p>Now, instead of comparing full feature sets, we compare compact integer vectors — much faster!</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/MinHash">MinHash</a> turns an O(N²) comparison problem into something much more manageable. Instead of comparing every meme to every other meme, we compute a small signature for each meme in O(N × k) time, where <strong>k</strong> is the number of hash functions.</p>
+<p>Memes with similar signatures are likely to be similar — and we can find them efficiently using techniques like <a class="reference external" href="https://en.wikipedia.org/wiki/Locality-sensitive_hashing">Locality-Sensitive Hashing</a> (LSH), which buckets signatures so that similar items land in the same bucket with high probability.</p>
+<p>This family of techniques powers similarity search at scale: near-duplicate detection, recommendation systems, plagiarism detection, and more. Not bad for a bit of hashing!</p>
+</div>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

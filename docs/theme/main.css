@@ -1,0 +1,268 @@
+html,
+body,
+p,
+div,
+img,
+h1,
+h2,
+h3,
+h4,
+ol,
+dl,
+dd,
+dt,
+form,
+table,
+td,
+tr {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+h1 {
+    text-align: center;
+    font-weight: bold;
+}
+
+h2 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    font-size: 135%;
+}
+
+html {
+    background-color: hsl(212, 27%, 10%);
+
+    color: #acacac;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    /* font-family: "Quicksand", sans-serif; */
+    /* font-size: 18px; */
+
+    line-height: 1.6;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+
+    background-image: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.03) 0,
+            rgba(255,255,255,0.03) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+ul li p {
+    margin-bottom: 0;
+}
+
+div {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-size: 100%;
+}
+
+a {
+    /* color: rgb(0, 150, 207); */
+    /* color: rgb(84, 130, 149); */
+    /* color: rgb(99, 151, 174); */
+    /* color: rgb(166, 104, 65); */
+    color: rgb(65, 136, 166);
+
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+div#logo {
+    width: 100%;
+    text-align: center;
+    font-size: 150%;
+}
+
+div#logo a {
+    text-decoration: none;
+    color: rgb(115, 116, 128);
+    /* color: rgb(64, 94, 106);
+    color: rgb(65, 138, 169); */
+}
+
+div#content {
+    width: 100%;
+}
+
+div#content div#innercontent {
+    max-width: 80ch;
+    margin: auto;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+header,
+footer {
+    font-size: 75%;
+    text-align: center;
+    color: rgb(115, 116, 128);
+}
+
+header>a,
+footer>a {
+    /* color: rgb(115, 116, 128); */
+    color: rgb(175, 175, 175);
+}
+
+hr.before-footer {
+    margin-top: 2em;
+    border-color: rgb(115, 116, 128);
+}
+
+header {
+    margin-bottom: 2em;
+}
+
+nav {
+    width: 100%;
+    text-align: center;
+    font-size: 105%;
+    padding-bottom: 2%;
+    color: rgb(115, 116, 128);
+}
+
+nav>a {
+    color: rgb(115, 116, 128);
+    /* color: rgb(250, 150, 84); */
+    text-decoration: none;
+}
+
+a.active {
+    color: #c5c5c5;
+    /* color: #00aaff; */
+    /* color: rgb(255, 180, 84); */
+}
+
+pre {
+    overflow: auto;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 1em;
+}
+
+ol {
+    margin-left: 2em;
+}
+
+img.align-center {
+    margin: 1em auto;
+    display: block;
+}
+
+img {
+    width: 80%;
+    height: auto;
+    border-radius: 5%;
+    /* border: 3pt solid #151a21; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    opacity: 0.7;
+}
+
+@media only screen and (min-width: 800px) {
+    img {
+        width: 60%;
+    }
+}
+
+.literal-block {
+    background-color: rgb(25, 31, 38);
+    color: rgb(230, 226, 207);
+    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+tt {
+    background-color: #191f26;
+    color: rgb(255, 180, 84);
+    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+    font-size: 0.875em;
+    overflow-x: initial;
+    display: inline;
+    padding: 0.1em 0.3em;
+    border-radius: 6px;
+    line-height: 1.45em;
+    padding-top: 3pt;
+    padding-bottom: 3pt;
+}
+
+pre {
+    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+    font-size: 14px;
+    border-radius: 10px;
+
+    display: block;
+    overflow-x: auto;
+}
+
+.circle-image {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 50%;
+    /* border: 4pt solid #192028; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: block;
+    margin: 0 auto;
+    opacity: 0.7;
+}
+
+.circle-image-small {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+    /* border: 4pt solid #192028; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: block;
+    margin: 0 auto;
+    opacity: 0.6;
+}
+
+table, th, td {
+    border: 0.025pt solid;
+    border-color: #2c3743;
+    text-align: center;
+}
+
+th, td {
+    padding: 4pt;
+    padding-left: 8pt;
+    padding-right: 8pt;
+}
+
+th {
+    background-color: #1e2530;
+}
+
+table {
+    margin: 15pt;
+    margin-left: auto;
+    margin-right: auto;
+}

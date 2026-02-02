@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Close Encounters of the LSH Kind</h1>
+<header>
+  Published on <time datetime="2024-05-11T21:45:00+02:00">2024-05-11</time>.
+    Tagged with
+      <a href="/tag/algorithm.html">algorithm</a>.
+</header>
+<img alt="Two mice that look identical" class="image-process-article-image align-center" height="319" src="images/derivatives/article-image/mouse_twins.png" width="480"/>
+<p>Imagine you're building an antique shop, and need a signature verification tool. So you have a collection of signatures, each represented by a tuple of integers:</p>
+<div class="highlight"><pre><span></span><span class="n">signatures</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>  <span class="c1"># signature 0</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>  <span class="c1"># similar to signature 0</span>
+    <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">42</span><span class="p">),</span>  <span class="c1"># different</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>  <span class="c1"># similar to signature 0</span>
+    <span class="c1"># ...</span>
+    <span class="c1"># ...</span>
+    <span class="c1"># ...</span>
+<span class="p">]</span>
+</pre></div>
+<p>Two signatures are <em>similar</em> if most of their positions match. You want to find all similar pairs.</p>
+<p>The brute-force approach is O(N²) comparisons. For 10,000 items, that's ~50 million comparisons. For a million items, 500 billion. Can we do better?</p>
+<div class="section" id="hash-baby-hash">
+<h2>Hash, baby, hash</h2>
+<p>Your first instinct might be: "Hash tables! I'll hash each signature and group identical ones."</p>
+<div class="highlight"><pre><span></span><span class="n">matches</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">signature</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">signatures</span><span class="p">):</span>
+    <span class="n">matches</span><span class="p">[</span><span class="n">signature</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>      <span class="c1"># uses hash(signature) as a key</span>
+</pre></div>
+<p>This finds exact duplicates instantly. But we don't want exact matches — we want <em>similar</em> matches. And regular hash functions are designed to do the opposite of what we need:</p>
+<div class="highlight"><pre><span></span><span class="n">sig_a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">sig_b</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># differs by just one position!</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="n">sig_a</span><span class="p">))</span>       <span class="c1"># -5659871693760987716</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">hash</span><span class="p">(</span><span class="n">sig_b</span><span class="p">))</span>       <span class="c1"># 847769062341010709    &lt;- completely different!</span>
+</pre></div>
+<p>One tiny change, and the hash is unrecognisable. Similar signatures scatter across different buckets. We need a hash that keeps similar things together.</p>
+</div>
+<div class="section" id="divide-and-conquer">
+<h2>Divide and conquer</h2>
+<p>But what if, instead of hashing the <em>whole</em> signature, we would hash just parts of it?</p>
+<div class="highlight"><pre><span></span><span class="n">signature</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+
+<span class="c1"># Split into 4 buckets of 3 values each</span>
+<span class="n">buckets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">tuple</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]),</span>   <span class="c1"># (1, 2, 3)</span>
+    <span class="nb">tuple</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span>   <span class="c1"># (4, 5, 6)</span>
+    <span class="nb">tuple</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]),</span>   <span class="c1"># (7, 8, 9)</span>
+    <span class="nb">tuple</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]),</span>  <span class="c1"># (10, 11, 12)</span>
+<span class="p">]</span>
+</pre></div>
+<p>Now let's see what happens with two similar signatures:</p>
+<div class="highlight"><pre><span></span><span class="n">sig_a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>  <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">sig_b</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>  <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="c1">#                     ^         ^  different positions</span>
+
+<span class="n">buckets_a</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">)]</span>
+<span class="n">buckets_b</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">9</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">)]</span>
+<span class="c1">#            ^^^^^^^                    ^^^^^^^^^^^</span>
+<span class="c1">#             match!                       match!</span>
+</pre></div>
+<p>Even though the signatures differ in two positions, they have <em>identical buckets</em> at positions 0 and 3. If we hash each bucket separately, these signatures will collide in at least two hash tables.</p>
+<p>That's the core of <a class="reference external" href="https://en.wikipedia.org/wiki/Locality-sensitive_hashing">Locality-Sensitive Hashing</a>: split signatures into buckets, hash each bucket into its own table, and call two items "candidates" if they collide in <em>any</em> bucket.</p>
+</div>
+<div class="section" id="locality-sensitive-hashing-1">
+<h2>Locality-sensitive hashing</h2>
+<p>Let's build this step by step. First, splitting signatures into buckets:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">split_into_buckets</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">):</span>
+    <span class="n">bucket_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span> <span class="o">//</span> <span class="n">num_buckets</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">bucket_size</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">bucket_size</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_buckets</span><span class="p">)</span>
+    <span class="p">]</span>
+
+<span class="n">sig</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">split_into_buckets</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="c1"># [(1, 2, 3), (4, 5, 6), (7, 8, 9), (10, 11, 12)]</span>
+</pre></div>
+<p>Now we build one hash table per bucket. Each table maps a bucket's hash to the set of item IDs that have that bucket:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">build_index</span><span class="p">(</span><span class="n">signatures</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">):</span>
+    <span class="c1"># one hash table per bucket</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_buckets</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">sig_idx</span><span class="p">,</span> <span class="n">sig</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">signatures</span><span class="p">):</span>
+        <span class="n">buckets</span> <span class="o">=</span> <span class="n">split_into_buckets</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">bucket_idx</span><span class="p">,</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">buckets</span><span class="p">):</span>
+            <span class="n">index</span><span class="p">[</span><span class="n">bucket_idx</span><span class="p">][</span><span class="n">bucket</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sig_idx</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">index</span>
+</pre></div>
+<p>And to find candidates for a query signature, we check all buckets:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_candidates</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">query_sig</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">):</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">buckets</span> <span class="o">=</span> <span class="n">split_into_buckets</span><span class="p">(</span><span class="n">query_sig</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">bucket_idx</span><span class="p">,</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">buckets</span><span class="p">):</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="n">bucket_idx</span><span class="p">][</span><span class="n">bucket</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">candidates</span>
+</pre></div>
+<p>Let's see it work:</p>
+<div class="highlight"><pre><span></span><span class="n">signatures</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>   <span class="c1"># item 0</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>   <span class="c1"># item 1 - similar to 0</span>
+    <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>   <span class="c1"># item 2 - different</span>
+<span class="p">]</span>
+
+<span class="n">index</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">signatures</span><span class="p">,</span> <span class="n">num_buckets</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">candidates</span> <span class="o">=</span> <span class="n">find_candidates</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">signatures</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_buckets</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>               <span class="c1"># {0, 1} - found the similar one!</span>
+</pre></div>
+</div>
+<div class="section" id="but-why-does-this-work">
+<h2>But Why Does This Work?</h2>
+<p>Let's think about when two signatures collide in a bucket. They collide only if <em>every</em> position in that bucket matches. If a bucket has 3 positions, all 3 must match.</p>
+<p>So, what's the probability of that happening?</p>
+<p>Say two signatures have similarity <strong>s</strong> — meaning about a fraction <strong>s</strong> of their positions match. If we pick one position, there's probability <strong>s</strong> that it matches. For the whole bucket to match, we need <em>all</em> positions to match:</p>
+<div class="math">
+\begin{equation*}
+P_{bucket\,match}  = 0.8^3 = 0.512
+\end{equation*}
+</div>
+<p>With 80% similarity and buckets of size 3, there's about a 51% chance any given bucket matches.</p>
+<p>Now, for two items to become candidates, they need to match in <em>at least one</em> bucket. The easiest way to compute this is to flip it: what's the probability they match in <em>no</em> buckets?</p>
+<div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="mf">0.8</span>  <span class="c1"># similarity</span>
+<span class="n">r</span> <span class="o">=</span> <span class="mi">3</span>    <span class="c1"># rows per bucket</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">4</span>    <span class="c1"># number of buckets</span>
+</pre></div>
+<div class="math">
+\begin{equation*}
+P_{bucket\,match} = s^r
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+P_{no\,match} = (1 - P_{bucket\,match})^b
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+P_{candidate} = 1 - P_{no\,match} = 1 - (1 - 0.512)^4 \approx 0.943
+\end{equation*}
+</div>
+<p>Two items with 80% similarity have a 94% chance of becoming candidates. Not bad!</p>
+</div>
+<div class="section" id="the-s-curve">
+<h2>The S-curve</h2>
+<p>Let's see how this probability changes with similarity:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">p_candidate</span><span class="p">(</span><span class="n">similarity</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">,</span> <span class="n">rows_per_bucket</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">similarity</span> <span class="o">**</span> <span class="n">rows_per_bucket</span><span class="p">)</span> <span class="o">**</span> <span class="n">num_buckets</span>
+
+<span class="c1"># With 20 buckets of 5 rows each (100 total signature length)</span>
+<span class="n">b</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span>
+
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">p_candidate</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="s2">"█"</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sim=</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">bar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span>sim=0.2: 0.006
+sim=0.3: 0.047 ██
+sim=0.4: 0.186 █████████
+sim=0.5: 0.470 ███████████████████████
+sim=0.6: 0.802 ████████████████████████████████████████
+sim=0.7: 0.975 ████████████████████████████████████████████████
+sim=0.8: 1.000 █████████████████████████████████████████████████
+sim=0.9: 1.000 ██████████████████████████████████████████████████
+</pre></div>
+<p>See the shape? There's a sharp transition around 0.5. Below it, pairs rarely become candidates. Above it, they almost always do. This is the <strong>S-curve</strong> — a soft filter that lets similar pairs through and blocks dissimilar ones.</p>
+<img alt="s-shaped function" class="image-process-article-image align-center" height="363" src="images/derivatives/article-image/s-shape.png" width="480"/>
+</div>
+<div class="section" id="tuning-the-filter">
+<h2>Tuning the Filter</h2>
+<p>You can move the threshold by adjusting <strong>b</strong> and <strong>r</strong>:</p>
+<div class="highlight"><pre><span></span>threshold ~0.1 (b=50, r=2):
+  sim=0.3: 0.991
+  sim=0.5: 1.000
+  sim=0.8: 1.000
+
+threshold ~0.5 (b=20, r=5):
+  sim=0.3: 0.047
+  sim=0.5: 0.470
+  sim=0.8: 1.000
+
+threshold ~0.8 (b=10, r=10):
+  sim=0.3: 0.000
+  sim=0.5: 0.010
+  sim=0.8: 0.679
+</pre></div>
+<p>The pattern:</p>
+<ul class="simple">
+<li><strong>More buckets (b)</strong> → lower threshold, catches more pairs (but more false positives)</li>
+<li><strong>More rows per bucket (r)</strong> → higher threshold, stricter filter (but might miss similar pairs)</li>
+</ul>
+<!-- The approximate threshold sits at (1/b)\ :sup:`1/r`. For b=20, r=5: that's about 0.55. -->
+<p>The approximate threshold sits at:</p>
+<div class="math">
+\begin{equation*}
+{({\frac{1}{b}})}^\frac{1}{r}
+\end{equation*}
+</div>
+<p>For b = 20, r = 5 that's about 0.55</p>
+</div>
+<div class="section" id="putting-it-together">
+<h2>Putting It Together</h2>
+<p>The full pipeline has three steps:</p>
+<ol class="arabic simple">
+<li><strong>Build matches</strong>: Hash all signatures into bucketed tables</li>
+<li><strong>Find candidates</strong>: For each signature, collect items that share any bucket</li>
+<li><strong>Verify</strong>: Compute actual similarity for candidates, keep those above threshold</li>
+</ol>
+<p>That last step is important. LSH gives you <em>candidates</em>, not guarantees. Some dissimilar pairs will slip through (false positives) — the verification catches them. Some similar pairs might be missed (false negatives) — tuning <strong>b</strong> and <strong>r</strong> controls this tradeoff.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_similar_pairs</span><span class="p">(</span><span class="n">signatures</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">signatures</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">)</span>
+
+    <span class="n">candidate_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sig</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">signatures</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">find_candidates</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>  <span class="c1"># avoid duplicates and self-matches</span>
+                <span class="n">candidate_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+
+    <span class="c1"># Verify candidates</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">candidate_pairs</span><span class="p">:</span>
+        <span class="c1"># Count matching positions</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">signatures</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">signatures</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+        <span class="n">similarity</span> <span class="o">=</span> <span class="n">matches</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">signatures</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">similarity</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">similarity</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+</div>
+<div class="section" id="how-much-faster">
+<h2>How Much Faster?</h2>
+<p>Let's compare. With 10,000 items:</p>
+<ul class="simple">
+<li><strong>Brute force</strong>: 50 million comparisons</li>
+<li><strong>LSH</strong>: ~10,000 × 20 = 200,000 bucket lookups, plus verifying maybe a few thousand candidates</li>
+</ul>
+<p>That's orders of magnitude less work. And it scales beautifully — the number of candidates depends on how many truly similar pairs exist, not on the total number of items.</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>LSH is one of those algorithms that feels like cheating. You're trading a small chance of missing similar pairs for a massive speedup. In most applications, that's exactly the right trade.</p>
+<p>The next time you see "similar items" appear instantly on a site with millions of products, there's a good chance LSH is working behind the scenes — a hash function that learned to keep similar things together.</p>
+</div>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

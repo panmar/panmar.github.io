@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Sweet Variant o’ Mine</h1>
+<header>
+  Published on <time datetime="2023-02-11T16:48:00+01:00">2023-02-11</time>.
+    Tagged with
+      <a href="/tag/c.html">C++</a>.
+</header>
+<img alt="mechanical cameleon" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/cameleon.jpeg" width="403"/>
+<p>Rust’s <a class="reference external" href="https://doc.rust-lang.org/stable/book/ch06-01-defining-an-enum.html?highlight=enum#enum-values">enums</a> (or should I say <em>tagged unions</em>) are a powerful tool for representing data that can take multiple forms, each with its own type and constructor.</p>
+<p>For example, consider a <strong>Message</strong> that encapsulates different message types:</p>
+<div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">Message</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Quit</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Move</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt"><span class="typename">i32</span></span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">:</span><span class="w"> </span><span class="kt"><span class="typename">i32</span></span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="n">Write</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+<span class="w">    </span><span class="n">ChangeColor</span><span class="p">(</span><span class="kt"><span class="typename">i32</span></span><span class="p">,</span><span class="w"> </span><span class="kt"><span class="typename">i32</span></span><span class="p">,</span><span class="w"> </span><span class="kt"><span class="typename">i32</span></span><span class="p">),</span>
+<span class="p">}</span>
+</pre></div>
+<p>Here, each variant can hold distinct data types, from no data (<strong>Quit</strong>) to complex structures (<strong>Move</strong>). Pattern matching with <strong>match</strong> ensures exhaustive handling of all cases at compile time, blending flexibility with safety:</p>
+<div class="highlight"><pre><span></span><span class="k">fn</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span><span class="w"> </span><span class="nc">Message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Message</span><span class="p">::</span><span class="n">Quit</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="fm">println!</span><span class="p">(</span><span class="s">"Quit"</span><span class="p">),</span>
+<span class="w">        </span><span class="n">Message</span><span class="p">::</span><span class="n">Move</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="fm">println!</span><span class="p">(</span><span class="s">"Move to ({}, {})"</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">),</span>
+<span class="w">        </span><span class="c1">// ... other variants handled explicitly</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>In C++, <a class="reference external" href="https://en.cppreference.com/w/cpp/utility/variant">std::variant</a> (since C++17) can mimic this behavior — but not without some boilerplate. First, define individual types for each variant:</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">Quit</span><span class="w"> </span><span class="p">{};</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Move</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Write</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ChangeColor</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">using</span><span class="w"> </span><span class="n">Message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">Quit</span><span class="p">,</span><span class="w"> </span><span class="n">Move</span><span class="p">,</span><span class="w"> </span><span class="n">Write</span><span class="p">,</span><span class="w"> </span><span class="n">ChangeColor</span><span class="o">&gt;</span><span class="p">;</span>
+</pre></div>
+<p>Handling the variant requires a visitor - often using <a class="reference external" href="https://en.cppreference.com/w/cpp/utility/variant/visit">std::visit</a> and a helper overloaded to combine lambdas:</p>
+<div class="highlight"><pre><span></span><span class="c1">// helper type for the visitor</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">overloaded</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Ts</span><span class="p">...</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">using</span><span class="w"> </span><span class="n">Ts</span><span class="o">::</span><span class="k">operator</span><span class="p">()...;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// explicit deduction guide (not needed as of C++20)</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="n">overloaded</span><span class="p">(</span><span class="n">Ts</span><span class="p">...)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">overloaded</span><span class="o">&lt;</span><span class="n">Ts</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">handle_message</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Message</span><span class="o">&amp;</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">overloaded</span><span class="p">{</span>
+<span class="w">        </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">Quit</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Quit</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">Move</span><span class="o">&amp;</span><span class="w"> </span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Move to (%d, %d)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">y</span><span class="p">);</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="c1">// ... other cases</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>Let’s be real: C++’s <strong>variant</strong> won’t match Rust enums for elegance. But that’s C++ in a nutshell - it hands you the tools to solve nearly any problem, even if the solution is a little rough around the edges. Yes, defining structs and writing visitors with overloaded lambdas is boilerplate-heavy, but it’s there if you ever need it. Just don't overuse it.</p>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

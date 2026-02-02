@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk - interview</title><link href="https://marcinpanasiuk.com/" rel="alternate"/><link href="https://marcinpanasiuk.com/feeds/interview.atom.xml" rel="self"/><id>https://marcinpanasiuk.com/</id><updated>2022-01-13T17:04:00+01:00</updated><entry><title>Interview with the Programmer</title><link href="https://marcinpanasiuk.com/interview-with-the-programmer.html" rel="alternate"/><published>2022-01-13T17:04:00+01:00</published><updated>2022-01-13T17:04:00+01:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2022-01-13:/interview-with-the-programmer.html</id><summary type="html">&lt;img alt="wooden desk with typewriter" class="image-process-article-image align-center" src="images/interview.jpg" /&gt;
+&lt;p&gt;Hiring a good programmer is hard. Not “come up with clever LeetCode puzzles” hard — actually &lt;em&gt;figuring out how someone thinks&lt;/em&gt; hard.&lt;/p&gt;
+&lt;p&gt;Over the years I’ve seen a few interview styles that really stuck with me. These aren’t about trick questions or whiteboard gymnastics. They’re about getting a …&lt;/p&gt;</summary><content type="html">&lt;img alt="wooden desk with typewriter" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/interview.jpg" width="473"/&gt;
+&lt;p&gt;Hiring a good programmer is hard. Not “come up with clever LeetCode puzzles” hard — actually &lt;em&gt;figuring out how someone thinks&lt;/em&gt; hard.&lt;/p&gt;
+&lt;p&gt;Over the years I’ve seen a few interview styles that really stuck with me. These aren’t about trick questions or whiteboard gymnastics. They’re about getting a glimpse into how someone approaches real problems. Here are three of my favourites:&lt;/p&gt;
+&lt;div class="section" id="tell-me-about-your-project-and-i-ll-tell-you-who-you-are"&gt;
+&lt;h2&gt;"Tell me about your project, and I'll tell you who you are..."&lt;/h2&gt;
+&lt;p&gt;In &lt;a class="reference external" href="https://www.youtube.com/watch?v=cfyWvJdsDRI"&gt;this simulated interview&lt;/a&gt;, Shawn McGrath walks Casey Muratori through his custom anti-aliasing implementation. Casey plays the role of a genuinely curious engineer and just keeps asking &lt;em&gt;why&lt;/em&gt; and &lt;em&gt;how&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;What I like about this approach is how naturally it exposes depth. You can tell very quickly whether someone really understands the trade-offs they made, or if they just followed a tutorial and hoped for the best. Unlike toy algorithm problems, talking through a real project shows how a programmer thinks when things get messy—which is, let’s be honest, most of the job.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="found-this-bug-what-could-have-caused-it"&gt;
+&lt;h2&gt;"Found this bug. What could have caused it?"&lt;/h2&gt;
+&lt;p&gt;Hussein Nasser talks about &lt;a class="reference external" href="https://www.youtube.com/watch?v=bDIB2eIzIC8"&gt;his favorite interview question&lt;/a&gt;, and it’s a great one. He starts by sketching out a system - database, backend, reverse proxy, load balancer, frontend—and then drops a concrete problem on the table. For example: &lt;em&gt;the UI freezes for about a minute after clicking a button&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;From there, the candidate is free to explore. How would you debug this? Where would you start? What do you suspect?&lt;/p&gt;
+&lt;p&gt;What’s clever here is that it’s completely open-ended. People naturally gravitate toward the parts of the system they understand best, and that tells you a lot. According to Hussein, he’s never gotten the same answer twice—and that tracks with my experience too.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="here-s-the-source-code-add-a-feature"&gt;
+&lt;h2&gt;"Here's the source code. Add a feature..."&lt;/h2&gt;
+&lt;p&gt;In &lt;a class="reference external" href="https://quuxplusone.github.io/blog/2022/01/06/memcached-interview/"&gt;this interview write-up&lt;/a&gt;, the task is to add support for an atomic &lt;strong&gt;mult&lt;/strong&gt; command to &lt;a class="reference external" href="https://memcached.org"&gt;Memcached&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I love this style because it’s unapologetically practical. You’re dropped into an unfamiliar codebase and asked to make a real change. No puzzles, no brainteasers - just: &lt;em&gt;can you read code, reason about it, and ship something without panicking?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;This kind of exercise tends to surface pragmatic programmers - the ones who aren’t afraid to get their hands dirty, ask the right questions, and make progress even when everything isn’t perfectly documented.&lt;/p&gt;
+&lt;/div&gt;
+</content><category term="misc"/><category term="interview"/></entry></feed>

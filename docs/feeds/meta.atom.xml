@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Marcin Panasiuk - meta</title><link href="https://marcinpanasiuk.com/" rel="alternate"/><link href="https://marcinpanasiuk.com/feeds/meta.atom.xml" rel="self"/><id>https://marcinpanasiuk.com/</id><updated>2021-09-13T11:43:00+02:00</updated><entry><title>First post</title><link href="https://marcinpanasiuk.com/first-post.html" rel="alternate"/><published>2021-09-13T11:43:00+02:00</published><updated>2021-09-13T11:43:00+02:00</updated><author><name>Marcin Panasiuk</name></author><id>tag:marcinpanasiuk.com,2021-09-13:/first-post.html</id><summary type="html">&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;fn&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="fm"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Hello world!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This is my first post. Inspired by &lt;a class="reference external" href="https://stasiak.at"&gt;Jakub Stasiak's blog&lt;/a&gt;
+(which I highly recommend checking out), I've finally decided to start my
+blogging adventure. To do so, I am using &lt;a class="reference external" href="https://github.com/getpelican/pelican"&gt;Pelican&lt;/a&gt;,
+and so far it's working wonderfully — I'm glad I resisted the temptation to roll …&lt;/p&gt;</summary><content type="html">&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;fn&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="fm"&gt;println!&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Hello world!"&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This is my first post. Inspired by &lt;a class="reference external" href="https://stasiak.at"&gt;Jakub Stasiak's blog&lt;/a&gt;
+(which I highly recommend checking out), I've finally decided to start my
+blogging adventure. To do so, I am using &lt;a class="reference external" href="https://github.com/getpelican/pelican"&gt;Pelican&lt;/a&gt;,
+and so far it's working wonderfully — I'm glad I resisted the temptation to roll my own solution.&lt;/p&gt;
+&lt;p&gt;For the theme, I’m using a modified version of &lt;a class="reference external" href="https://github.com/panmar/panmar.github.io"&gt;Jakub's theme&lt;/a&gt;,
+which I’ve been tweaking during late-night hours.
+After some experimentation, I settled on a darker theme that feels easy on the eyes.&lt;/p&gt;
+</content><category term="misc"/><category term="meta"/></entry></feed>

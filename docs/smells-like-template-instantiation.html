@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Smells like template instantiation</h1>
+<header>
+  Published on <time datetime="2026-01-03T21:43:00+01:00">2026-01-03</time>.
+    Tagged with
+      <a href="/tag/c.html">C++</a>.
+</header>
+<img alt="bonsai tree" class="image-process-article-image align-center" height="380" src="images/derivatives/article-image/bonsai.png" width="443"/>
+<p>I've recently listened to a <a class="reference external" href="https://www.youtube.com/watch?v=Le8iafkLxNo">Wookash podcast</a> with <a class="reference external" href="https://www.linkedin.com/in/🌮-andreas-fredriksson-287811164/">Andreas Fredriksson</a> — Engine Lead at Insomniac. One line stuck with me: when working on his engine Andreas tries to keep each header file as small as possible so he can iterate on a single source file without much recompilation. One way he achieves that is by reducing the number of template definitions in headers.</p>
+<p>Normally, templates have to live in headers, because the compiler needs to see the full definition at the point of use.</p>
+<div class="highlight"><pre><span></span><span class="c1">// t.h</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+<p>So if you have two source files using the same template instantiated with the same type, the templated function will be duplicated.</p>
+<div class="highlight"><pre><span></span><span class="c1">// a.cc</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"t.h"</span>
+
+<span class="n">my_template</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="c1">// b.cc</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"t.h"</span>
+
+<span class="n">my_template</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+</pre></div>
+<p>If we compile this code:</p>
+<div class="highlight"><pre><span></span><span class="go">g++ -c a.cc b.cc</span>
+</pre></div>
+<p>And look for <code>my_template</code> definitions (T = text section):</p>
+<div class="highlight"><pre><span></span><span class="go">nm -C a.o | grep -i my_template</span>
+<span class="go">0000000000000024 T void my_template&lt;A&gt;(A&amp;)</span>
+
+<span class="go">nm -C b.o | grep -i my_template</span>
+<span class="go">0000000000000024 T void my_template&lt;A&gt;(A&amp;)</span>
+</pre></div>
+<p>We see that every translation unit that uses a template instantiates its own copy. More headers lead to more copies, which often make compile times skyrocket. Even if the linker later merges the duplicates, the milk is already spilled — the template was compiled multiple times.</p>
+<div class="section" id="explicit-templates">
+<h2>Explicit templates</h2>
+<p>This is where <a class="reference external" href="https://en.cppreference.com/w/cpp/language/function_template#Explicit_instantiation">explicit templates</a> come in. Instead of letting every source instantiate templates implicitly, you can choose one place to do it explicitly:</p>
+<div class="highlight"><pre><span></span><span class="c1">// t.h</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">);</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="n">A</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="o">&lt;</span><span class="n">B</span><span class="o">&gt;</span><span class="p">(</span><span class="n">B</span><span class="o">&amp;</span><span class="p">);</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="c1">// t.cc</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"my_header.h"</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// implementation</span>
+<span class="p">}</span>
+
+<span class="c1">// explicit instantiations</span>
+<span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="n">A</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">my_template</span><span class="o">&lt;</span><span class="n">B</span><span class="o">&gt;</span><span class="p">(</span><span class="n">B</span><span class="o">&amp;</span><span class="p">);</span>
+</pre></div>
+<p>Now users of <code>my_template&lt;&gt;</code> don’t need the full definition. They just include the header, and the compiler links against the already-instantiated version.</p>
+<p>If we were to compile this version:</p>
+<div class="highlight"><pre><span></span><span class="go">g++ -c t.cc a.cc b.cc</span>
+</pre></div>
+<p>And look for <code>my_template</code> definitions (T = text section) in t.cc</p>
+<div class="highlight"><pre><span></span><span class="go">nm -C t.o | grep -i my_template</span>
+<span class="go">0000000000000000 T void my_template&lt;A&gt;(A&amp;)</span>
+<span class="go">0000000000000044 T void my_template&lt;B&gt;(B&amp;)</span>
+</pre></div>
+<p>We would find definitions of explicitly specialized templates.</p>
+<p>Now if we were to check other object files (U = Undefined reference):</p>
+<div class="highlight"><pre><span></span><span class="go">nm -C a.o | grep -i my_template</span>
+<span class="go">                 U void my_template&lt;A&gt;(A&amp;)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="go">nm -C b.o | grep -i my_template</span>
+<span class="go">                 U void my_template&lt;B&gt;(B&amp;)</span>
+</pre></div>
+<p>We see that the symbol is used, but not defined there — it will be resolved by the linker.</p>
+</div>
+<div class="section" id="closing-thoughts">
+<h2>Closing thoughts</h2>
+<p>So when to use it? For generic containers meant to store many different types, or for public API that need to stay flexible, standard templates are still the right tool. But for internal code, or for cases with a clearly fixed set of types (like <code>vec3&lt;float&gt;</code> or <code>vec2&lt;int&gt;</code>), explicit template instantiation is very much worth considering.</p>
+</div>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>

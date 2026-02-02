@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Marcin Panasiuk</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="/theme/main.css" rel="stylesheet" type="text/css"/>
+<link href="/theme/highlight.css" rel="stylesheet" type="text/css"/>
+<link href="https://marcinpanasiuk.com/feeds/all.atom.xml" rel="alternate" title="Marcin Panasiuk Full Atom Feed" type="application/atom+xml"/>
+</head>
+<body>
+<div id="logo">
+<a href="/">Marcin Panasiuk</a>
+</div>
+<nav>
+<a class="active" href="/">Posts</a>
+        |
+        <a href="/tags.html">Tags</a>
+        |
+        <a href="/pages/projects.html">Projects</a>
+        |
+        <a href="/pages/about.html">About</a>
+        |
+        <a href="/feeds/all.atom.xml">Atom</a>
+</nav>
+<div id="content">
+<div id="innercontent">
+<h1>Perils of structured bindings</h1>
+<header>
+  Published on <time datetime="2025-03-17T19:43:00+01:00">2025-03-17</time>.
+    Tagged with
+      <a href="/tag/c.html">C++</a>.
+</header>
+<img alt="a small dog near deep crack" class="image-process-article-image align-center" height="334" src="images/derivatives/article-image/dog-and-crack.png" width="480"/>
+<p>C++17 introduced <a class="reference external" href="https://en.cppreference.com/w/cpp/language/structured_binding.html">structured bindings</a>:</p>
+<div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">func</span><span class="p">();</span>
+</pre></div>
+<p>It looks innocent and convenient. You can think of it as:</p>
+<div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">__tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">func</span><span class="p">();</span>
+<span class="c1">// a and b are lvalue references to __tmp's members</span>
+</pre></div>
+<p>There are two distinct steps here. First, <code>func()</code> produces a temporary.
+At this level, <em>copy elision</em> usually applies. Second, the bindings are initialized from that temporary.
+Here, things get less friendly.</p>
+<p>Consider this example:</p>
+<div class="highlight"><pre><span></span><span class="n">B</span><span class="w"> </span><span class="nf">func_ext</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">func</span><span class="p">();</span><span class="w">   </span><span class="c1">// RVO here</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w">               </span><span class="c1">// no NRVO here!</span>
+<span class="p">}</span>
+</pre></div>
+<p>Imagine <code>b</code> is a big structure. Returning <code>b</code> looks cheap. It isn’t. <code>b</code> is a named object. It is no longer the function’s return value. The compiler has to copy or move it.</p>
+<p>Now compare this with a more traditional approach:</p>
+<div class="highlight"><pre><span></span><span class="n">B</span><span class="w"> </span><span class="nf">func_ext</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">    </span><span class="n">func</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w">               </span><span class="c1">// NRVO here</span>
+<span class="p">}</span>
+</pre></div>
+<p>Here, <code>b</code> is constructed directly as the return object.
+No detour. No extra copy.</p>
+<div class="section" id="why-does-this-happen">
+<h2>Why does this happen?</h2>
+<p>When you call a function that returns a large object, the caller allocates space on its own stack and passes a hidden pointer to the callee:</p>
+<div class="highlight"><pre><span></span><span class="nl">func:</span>
+<span class="w">    </span><span class="nf">sub</span><span class="w"> </span><span class="nb">rsp</span><span class="p">,</span><span class="w"> </span><span class="nv">sizeof</span><span class="p">(</span><span class="nv">B</span><span class="p">)</span><span class="w">      </span><span class="c1">; make space for return value</span>
+<span class="w">    </span><span class="nf">lea</span><span class="w"> </span><span class="nb">rdi</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nb">rsp</span><span class="p">]</span><span class="w">          </span><span class="c1">; pass pointer to that space as hidden first argument</span>
+<span class="w">    </span><span class="nf">call</span><span class="w"> </span><span class="nv">func_ext</span>
+<span class="w">    </span><span class="c1">; now [rsp] contains the B object</span>
+</pre></div>
+<p>The callee receives this pointer and constructs the return value at that address:</p>
+<div class="highlight"><pre><span></span><span class="nl">func_ext:</span>
+<span class="w">    </span><span class="c1">; rdi = pointer to where caller wants the result</span>
+<span class="w">    </span><span class="c1">; construct B at address rdi</span>
+<span class="w">    </span><span class="nf">ret</span>
+</pre></div>
+<p>The "return slot" is just that space the caller allocated. The caller decides where it is. The callee must use it. When the compiler sees:</p>
+<div class="highlight"><pre><span></span><span class="n">B</span><span class="w"> </span><span class="nf">func_ext</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">    </span><span class="n">func</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>It realizes <code>b</code> will become the return value. So instead of giving <code>b</code> its own space on <code>func_ext</code>'s stack, it uses the pointer the caller provided. <code>b</code> is constructed directly where the caller wants it. When the function returns, there's nothing to copy — <code>b</code> and the return value are the same object at the same address.</p>
+<p>Why subobjects break this?</p>
+<div class="highlight"><pre><span></span><span class="n">B</span><span class="w"> </span><span class="nf">func_ext</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">func</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>The hidden temporary looks like this in memory:</p>
+<div class="highlight"><pre><span></span>func_ext's stack frame:
+    ┌─────────────────┐
+    │      ...        │
+    ├─────────────────┤ 0x7fff1000
+    │       a         │   &lt;- __tmp starts here
+    ├─────────────────┤ 0x7fff1008
+    │       b         │   &lt;- b is at __tmp + 8
+    ├─────────────────┤
+    │      ...        │
+    └─────────────────┘
+</pre></div>
+<p>Meanwhile, the caller said "put the return value at <code>0x7fff2050</code>" (some address in the caller's frame). For NRVO to work, <code>b</code> would need to exist at <code>0x7fff2050</code>. But <code>b</code>'s address is <code>0x7fff1008</code> — it's determined by where <code>__tmp</code> lives plus a fixed offset.</p>
+<p>Could the compiler fix this?</p>
+<p>You might ask: why not place <code>__tmp</code> such that <code>b</code> lands at <code>0x7fff2050</code>?
+That would put <code>__tmp</code> at <code>0x7fff2048</code> (so that <code>__tmp + 8 = 0x7fff2050</code>). But then a would occupy <code>0x7fff2048</code> — memory that's in the caller's stack frame, not ours. We'd be writing into memory we don't own. The caller only promised that <code>0x7fff2050</code> is valid for a <code>b</code>. It made no guarantees about the bytes before it.</p>
+<p>A subobject's address is derived from its parent's address. The return slot's address is chosen by the caller. These are two independent constraints on where <code>b</code> must live, and you can't satisfy both. Hence, a copy:</p>
+<div class="highlight"><pre><span></span><span class="nf">...</span>
+<span class="nf">mov</span><span class="w">     </span><span class="nb">rdx</span><span class="p">,</span><span class="w"> </span><span class="kt">QWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="p">[</span><span class="nb">rbp</span><span class="o">-</span><span class="mi">16</span><span class="p">]</span>
+<span class="nf">mov</span><span class="w">     </span><span class="nb">rax</span><span class="p">,</span><span class="w"> </span><span class="kt">QWORD</span><span class="w"> </span><span class="nv">PTR</span><span class="w"> </span><span class="p">[</span><span class="nb">rbp</span><span class="o">-</span><span class="mi">152</span><span class="p">]</span>
+<span class="nf">mov</span><span class="w">     </span><span class="nb">rsi</span><span class="p">,</span><span class="w"> </span><span class="nb">rdx</span>
+<span class="nf">mov</span><span class="w">     </span><span class="nb">rdi</span><span class="p">,</span><span class="w"> </span><span class="nb">rax</span>
+<span class="nf">call</span><span class="w">    </span><span class="nv">B</span><span class="p">::</span><span class="nv">B</span><span class="p">(</span><span class="nv">B</span><span class="w"> </span><span class="nv">const</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="nv">complete</span><span class="w"> </span><span class="nv">object</span><span class="w"> </span><span class="nv">constructor</span><span class="p">]</span>
+<span class="nf">...</span>
+</pre></div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>Structured bindings are elegant. They also hide costs. If performance matters, don’t trust the surface syntax. Check the generated code. The disassembly rarely lies.</p>
+</div>
+<hr class="before-footer"/>
+<footer>
+                Generated from <a href="https://github.com/panmar/panmar.github.io/commit/dd5c5ec">commit dd5c5ec</a> on <nobr>2026-02-02 09:47:36+01:00</nobr>.
+                Content licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+            </footer>
+</div>
+</div>
+</body>
+</html>
