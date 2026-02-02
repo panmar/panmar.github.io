@@ -1,0 +1,1 @@
+from .highlight_types import register
