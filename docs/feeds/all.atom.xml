@@ -133,7 +133,8 @@
 &lt;span class="go"&gt;main.cc:7:6: error: no matching function for call to 'foo'&lt;/span&gt;
 &lt;span class="go"&gt;    7 |     (foo(v), ...);&lt;/span&gt;
 &lt;span class="go"&gt;    |      ^~~&lt;/span&gt;
-&lt;span class="go"&gt;main.cc:11:5: note: in instantiation of function template specialization 'bar&lt;int&gt;' requested here&lt;/int&gt;&lt;/span&gt;
+&lt;span class="go"&gt;main.cc:11:5: note: in instantiation of function template specialization 'bar&lt;int&gt;'&lt;/int&gt;&lt;/span&gt;
+&lt;span class="go"&gt;requested here&lt;/span&gt;
 &lt;span class="go"&gt;11 |     bar(1);&lt;/span&gt;
 &lt;span class="go"&gt;    |     ^&lt;/span&gt;
 &lt;span class="go"&gt;main.cc:3:6: note: candidate function not viable: expects an rvalue for 1st argument&lt;/span&gt;
