@@ -40,7 +40,7 @@ Let's walk through it carefully.
     foo(v1);    // where v1 = 1.f
     foo(v2);    // where v2 = 2
 
-Wait, but there are no such functions defined! All we have are two functions :code:`foo` taking *rvalue* references. 
+Wait, but there are no such functions defined! All we have are two functions :code:`foo` taking *rvalue* references.
 
 At this point I thought it could be a compiler error. There is no function :code:`foo` taking *lvalue* reference. The only way the compiler could use defined functions is if it somehow created temporary variable inside the function calls...
 
@@ -82,7 +82,8 @@ If there were only one function :code:`foo` matching parameter passed to :code:`
     main.cc:7:6: error: no matching function for call to 'foo'
         7 |     (foo(v), ...);
         |      ^~~
-    main.cc:11:5: note: in instantiation of function template specialization 'bar<int>' requested here
+    main.cc:11:5: note: in instantiation of function template specialization 'bar<int>'
+    requested here
     11 |     bar(1);
         |     ^
     main.cc:3:6: note: candidate function not viable: expects an rvalue for 1st argument
@@ -123,7 +124,7 @@ This is basically what it looks like (simplified):
 The entire trick is this cast:
 
 .. code-block:: c++
-    
+
     static_cast<T&&>(t)
 
 Conclusion
